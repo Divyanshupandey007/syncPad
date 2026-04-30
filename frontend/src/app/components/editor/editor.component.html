@@ -1,0 +1,50 @@
+<main class="editor-main">
+  <div class="editor-card" [style.font-size.px]="(settings$ | async)?.fontSize">
+    <!-- Line Gutter -->
+    <div class="editor-gutter" [class.hidden]="!(settings$ | async)?.lineNumbers">
+      @for (line of lines; track line.number) {
+        <div class="editor-gutter__line"
+             [class.editor-gutter__line--active]="line.number === activeLine">
+          {{ line.number }}
+        </div>
+      }
+    </div>
+
+    <!-- Editor Content -->
+    <div class="editor-content"
+         contenteditable="true"
+         spellcheck="false"
+         [style.font-family]="(settings$ | async)?.fontFamily + ', monospace'"
+         [style.white-space]="(settings$ | async)?.wordWrap ? 'pre-wrap' : 'pre'">
+      @for (line of lines; track line.number) {
+        @switch (line.type) {
+          @case ('heading') {
+            <div class="editor-line">
+              <span class="token-heading">{{ line.content }}</span>
+            </div>
+          }
+          @case ('blank') {
+            <div class="editor-line editor-line--blank"></div>
+          }
+          @case ('text') {
+            <div class="editor-line">{{ line.content }}</div>
+          }
+          @case ('text-active') {
+            <div class="editor-line editor-line--active">{{ line.content }}</div>
+          }
+          @case ('code-fence') {
+            <div class="editor-line">
+              <span class="token-tertiary">{{ line.content }}</span>
+            </div>
+          }
+          @case ('code-keyword') {
+            <div class="editor-line">
+              <span class="token-keyword">function</span>
+              <span class="token-function"> initializeSync</span><span>() &#123;</span>
+            </div>
+          }
+        }
+      }
+    </div>
+  </div>
+</main>

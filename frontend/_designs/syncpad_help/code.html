@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SyncPad Help Modal</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-tertiary": "#3d2e13",
+                      "surface-container-low": "#1b1b1d",
+                      "outline": "#8f9097",
+                      "on-secondary-fixed-variant": "#474746",
+                      "on-error-container": "#ffdad6",
+                      "surface-container-high": "#2a2a2b",
+                      "on-background": "#e4e2e3",
+                      "error": "#ffb4ab",
+                      "on-error": "#690005",
+                      "surface-dim": "#131315",
+                      "on-primary-fixed-variant": "#3c475a",
+                      "surface-bright": "#39393a",
+                      "surface-container": "#1f1f21",
+                      "surface-tint": "#bcc7dd",
+                      "tertiary": "#dcc39d",
+                      "on-surface-variant": "#c5c6cd",
+                      "outline-variant": "#44474c",
+                      "background": "#131315",
+                      "secondary-fixed-dim": "#c8c6c5",
+                      "secondary-fixed": "#e5e2e1",
+                      "surface-container-lowest": "#0e0e0f",
+                      "inverse-primary": "#545f72",
+                      "surface": "#131315",
+                      "inverse-surface": "#e4e2e3",
+                      "secondary": "#c8c6c5",
+                      "primary": "#bcc7dd",
+                      "secondary-container": "#474746",
+                      "primary-container": "#4a5568",
+                      "on-tertiary-fixed": "#261902",
+                      "on-secondary-container": "#b7b4b4",
+                      "tertiary-container": "#645234",
+                      "primary-fixed": "#d8e3fa",
+                      "tertiary-fixed-dim": "#dcc39d",
+                      "on-secondary": "#313030",
+                      "on-tertiary-fixed-variant": "#554427",
+                      "on-primary": "#263142",
+                      "on-surface": "#e4e2e3",
+                      "tertiary-fixed": "#f9dfb8",
+                      "on-tertiary-container": "#dfc6a0",
+                      "on-secondary-fixed": "#1c1b1b",
+                      "inverse-on-surface": "#303032",
+                      "error-container": "#93000a",
+                      "surface-variant": "#353536",
+                      "surface-container-highest": "#353536",
+                      "on-primary-fixed": "#111c2c",
+                      "on-primary-container": "#becae0",
+                      "primary-fixed-dim": "#bcc7dd"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "lg": "24px",
+                      "xs": "4px",
+                      "unit": "4px",
+                      "gutter": "20px",
+                      "md": "16px",
+                      "sm": "8px",
+                      "xl": "48px",
+                      "editor-max-width": "840px"
+              },
+              "fontFamily": {
+                      "h2": [
+                              "Inter"
+                      ],
+                      "editor-meta": [
+                              "JetBrains Mono"
+                      ],
+                      "h1": [
+                              "Inter"
+                      ],
+                      "ui-medium": [
+                              "Inter"
+                      ],
+                      "ui-small": [
+                              "Inter"
+                      ],
+                      "editor-main": [
+                              "JetBrains Mono"
+                      ]
+              },
+              "fontSize": {
+                      "h2": [
+                              "18px",
+                              {
+                                      "lineHeight": "24px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "editor-meta": [
+                              "12px",
+                              {
+                                      "lineHeight": "18px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "h1": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "ui-medium": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "ui-small": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "editor-main": [
+                              "15px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+</head>
+<body class="bg-background min-h-screen text-on-surface overflow-hidden relative font-h1">
+<!-- Top Navigation Anchor -->
+<nav class="flex justify-between items-center px-6 h-14 w-full z-50 docked full-width top-0 border-b border-[#222] bg-[#0D0D0D]">
+<div class="flex items-center">
+<span class="font-mono font-bold text-[#4A5568] text-lg tracking-tighter">SyncPad</span>
+</div>
+<div class="flex items-center gap-4">
+<button aria-label="Settings" class="text-[#4A5568] hover:text-white transition-colors duration-150 p-2 rounded flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+</button>
+<button aria-label="Help" class="text-[#4A5568] hover:text-white transition-colors duration-150 p-2 rounded flex items-center justify-center opacity-80 scale-[0.99] transition-all">
+<span class="material-symbols-outlined text-[20px]">help</span>
+</button>
+<div class="w-px h-4 bg-[#222] mx-2"></div>
+<button class="border border-[#222] text-[#4A5568] hover:bg-[#161616] hover:text-white transition-colors duration-150 px-3 py-1.5 rounded-DEFAULT font-ui-small text-ui-small bg-transparent">
+                Copy Link
+            </button>
+<button class="bg-primary-container text-on-primary-container hover:brightness-110 transition-colors duration-150 px-3 py-1.5 rounded-DEFAULT font-ui-small text-ui-small border border-transparent">
+                Share
+            </button>
+</div>
+</nav>
+<!-- Background Editor Mockup (Blurred/Darkened for Focus) -->
+<main class="w-full h-[calc(100vh-56px)] flex justify-center pt-xl px-4 relative z-0 opacity-40">
+<div class="w-full max-w-editor-max-width bg-[#161616] h-full p-lg rounded-t-xl border-t border-l border-r border-[#222]">
+<div class="flex items-center gap-2 mb-lg">
+<span class="w-1 h-6 bg-primary"></span>
+<h1 class="font-h1 text-h1 text-on-surface">Meeting Notes: Project Alpha</h1>
+</div>
+<p class="font-editor-main text-editor-main text-on-surface-variant mb-4">
+                1. Discussed timeline constraints for the Q3 deliverable.
+            </p>
+<p class="font-editor-main text-editor-main text-on-surface-variant mb-4 flex relative">
+                2. Marketing team needs access to the raw assets by Friday. <span class="absolute right-0 top-0 h-full w-[2px] bg-tertiary"></span><span class="absolute -right-6 top-1 font-editor-meta text-editor-meta text-tertiary">Sarah</span>
+</p>
+<p class="font-editor-main text-editor-main text-on-surface-variant mb-4">
+                3. We need to finalize the server migration before we push the new update to staging.
+            </p>
+</div>
+</main>
+<!-- Overlay / Backdrop -->
+<div class="fixed inset-0 bg-[#0D0D0D]/60 backdrop-blur-sm z-40 flex items-center justify-center">
+<!-- Modal Container -->
+<div class="bg-[#1C1C1C] border border-[#222] rounded-xl w-[500px] shadow-[0_20px_50px_rgba(0,0,0,0.3)] flex flex-col relative z-50">
+<!-- Modal Header -->
+<div class="flex justify-between items-center p-md border-b border-[#222]">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary-container text-[20px]" style="font-variation-settings: 'FILL' 1;">help</span>
+<h2 class="font-h2 text-h2 text-on-surface">Help &amp; Support</h2>
+</div>
+<button class="text-on-surface-variant hover:text-on-surface transition-colors duration-150 p-1 rounded">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+<!-- Modal Body -->
+<div class="p-lg flex flex-col gap-lg">
+<!-- Section: How sharing works -->
+<div>
+<h3 class="font-ui-medium text-ui-medium text-on-surface mb-sm flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-surface-tint">group</span>
+                        How sharing works
+                    </h3>
+<p class="font-ui-small text-ui-small text-on-surface-variant leading-relaxed pl-6">
+                        SyncPad uses open link sharing. Anyone with the URL can view and edit this document in real-time. Keep your links secure and share only with trusted collaborators.
+                    </p>
+</div>
+<!-- Section: Basic Usage -->
+<div>
+<h3 class="font-ui-medium text-ui-medium text-on-surface mb-sm flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-surface-tint">bolt</span>
+                        Basic Usage
+                    </h3>
+<p class="font-ui-small text-ui-small text-on-surface-variant leading-relaxed pl-6">
+                        Changes are synced instantly. You'll see colored cursors when others are typing. Inactive cursors fade away to keep your workspace distraction-free.
+                    </p>
+</div>
+<div class="w-full h-px bg-[#222]"></div>
+<!-- Section: Keyboard Shortcuts -->
+<div>
+<h3 class="font-ui-medium text-ui-medium text-on-surface mb-md flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-surface-tint">keyboard</span>
+                        Keyboard Shortcuts
+                    </h3>
+<div class="grid grid-cols-1 gap-2 pl-6">
+<div class="flex justify-between items-center py-1">
+<span class="font-ui-small text-ui-small text-on-surface-variant">Save Document</span>
+<div class="flex gap-1">
+<span class="bg-[#2A2A2B] border border-[#353536] rounded px-1.5 py-0.5 font-editor-meta text-editor-meta text-on-surface">Cmd/Ctrl</span>
+<span class="bg-[#2A2A2B] border border-[#353536] rounded px-1.5 py-0.5 font-editor-meta text-editor-meta text-on-surface">S</span>
+</div>
+</div>
+<div class="flex justify-between items-center py-1">
+<span class="font-ui-small text-ui-small text-on-surface-variant">Open Settings</span>
+<div class="flex gap-1">
+<span class="bg-[#2A2A2B] border border-[#353536] rounded px-1.5 py-0.5 font-editor-meta text-editor-meta text-on-surface">Cmd/Ctrl</span>
+<span class="bg-[#2A2A2B] border border-[#353536] rounded px-1.5 py-0.5 font-editor-meta text-editor-meta text-on-surface">P</span>
+</div>
+</div>
+<div class="flex justify-between items-center py-1">
+<span class="font-ui-small text-ui-small text-on-surface-variant">Copy Link</span>
+<div class="flex gap-1">
+<span class="bg-[#2A2A2B] border border-[#353536] rounded px-1.5 py-0.5 font-editor-meta text-editor-meta text-on-surface">Cmd/Ctrl</span>
+<span class="bg-[#2A2A2B] border border-[#353536] rounded px-1.5 py-0.5 font-editor-meta text-editor-meta text-on-surface">Shift</span>
+<span class="bg-[#2A2A2B] border border-[#353536] rounded px-1.5 py-0.5 font-editor-meta text-editor-meta text-on-surface">C</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Modal Footer -->
+<div class="p-md border-t border-[#222] flex justify-end">
+<button class="bg-primary-container text-on-primary-container hover:brightness-110 transition-colors duration-150 px-4 py-2 rounded-DEFAULT font-ui-medium text-ui-medium border border-transparent">
+                    Got it
+                </button>
+</div>
+</div>
+</div>
+</body></html>

@@ -1,0 +1,41 @@
+import { Component, HostListener, inject } from '@angular/core';
+import { NavbarComponent } from './components/navbar/navbar.component';
+import { EditorComponent } from './components/editor/editor.component';
+import { StatusBarComponent } from './components/status-bar/status-bar.component';
+import { HelpModalComponent } from './components/help-modal/help-modal.component';
+import { SettingsModalComponent } from './components/settings-modal/settings-modal.component';
+import { ModalService } from './services/modal.service';
+
+@Component({
+  selector: 'app-root',
+  standalone: true,
+  imports: [
+    NavbarComponent,
+    EditorComponent,
+    StatusBarComponent,
+    HelpModalComponent,
+    SettingsModalComponent,
+  ],
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.scss'],
+})
+export class AppComponent {
+  private modalService = inject(ModalService);
+
+  @HostListener('document:keydown', ['$event'])
+  handleKeyboardShortcuts(event: KeyboardEvent): void {
+    const mod = event.metaKey || event.ctrlKey;
+
+    // Cmd/Ctrl + P → Open Settings
+    if (mod && event.key === 'p') {
+      event.preventDefault();
+      this.modalService.openSettings();
+    }
+
+    // Cmd/Ctrl + Shift + C → Copy Link
+    if (mod && event.shiftKey && event.key === 'C') {
+      event.preventDefault();
+      navigator.clipboard.writeText(window.location.href);
+    }
+  }
+}

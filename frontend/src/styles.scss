@@ -1,0 +1,249 @@
+/* ============================================================
+   SyncPad — Global Design Tokens & Base Styles
+   ============================================================ */
+
+:root {
+  /* ── Surface & Background ─────────────────────────────── */
+  --surface:                   #13121b;
+  --surface-dim:               #13121b;
+  --surface-bright:            #393842;
+  --surface-container-lowest:  #0e0d16;
+  --surface-container-low:     #1b1b24;
+  --surface-container:         #1f1f28;
+  --surface-container-high:    #2a2933;
+  --surface-container-highest: #35343e;
+  --surface-variant:           #35343e;
+  --surface-tint:              #c3c0ff;
+  --background:                #13121b;
+
+  /* ── On-Surface (text on surfaces) ────────────────────── */
+  --on-surface:                #e4e1ee;
+  --on-surface-variant:        #c7c4d8;
+  --on-background:             #e4e1ee;
+  --inverse-surface:           #e4e1ee;
+  --inverse-on-surface:        #302f39;
+
+  /* ── Primary ──────────────────────────────────────────── */
+  --primary:                   #c3c0ff;
+  --on-primary:                #1d00a5;
+  --primary-container:         #4f46e5;
+  --on-primary-container:      #dad7ff;
+  --inverse-primary:           #4d44e3;
+  --primary-fixed:             #e2dfff;
+  --primary-fixed-dim:         #c3c0ff;
+  --on-primary-fixed:          #0f0069;
+  --on-primary-fixed-variant:  #3323cc;
+
+  /* ── Secondary ────────────────────────────────────────── */
+  --secondary:                 #c2c6d2;
+  --on-secondary:              #2c313a;
+  --secondary-container:       #444953;
+  --on-secondary-container:    #b4b8c4;
+  --secondary-fixed:           #dee2ee;
+  --secondary-fixed-dim:       #c2c6d2;
+  --on-secondary-fixed:        #171c24;
+
+  /* ── Tertiary ─────────────────────────────────────────── */
+  --tertiary:                  #ffb695;
+  --on-tertiary:               #571f00;
+  --tertiary-container:        #a44100;
+  --on-tertiary-container:     #ffd2be;
+  --tertiary-fixed:            #ffdbcc;
+  --tertiary-fixed-dim:        #ffb695;
+
+  /* ── Outline ──────────────────────────────────────────── */
+  --outline:                   #918fa1;
+  --outline-variant:           #464555;
+
+  /* ── Error ────────────────────────────────────────────── */
+  --error:                     #ffb4ab;
+  --on-error:                  #690005;
+  --error-container:           #93000a;
+  --on-error-container:        #ffdad6;
+
+  /* ── Elevation layers ─────────────────────────────────── */
+  --elevation-0:               #0F1115;
+  --elevation-1:               #1A1D23;
+  --elevation-2:               #22262E;
+  --elevation-border:          #2A2F38;
+  --modal-bg:                  #1C1C1C;
+  --modal-bg-alt:              #1A1A1A;
+  --modal-header-bg:           #161616;
+  --modal-border:              #222222;
+
+  /* ── Spacing ──────────────────────────────────────────── */
+  --sp-unit: 4px;
+  --sp-xs:   4px;
+  --sp-sm:   8px;
+  --sp-md:   16px;
+  --sp-lg:   24px;
+  --sp-xl:   48px;
+  --sp-gutter: 16px;
+  --sp-editor-padding: 32px;
+
+  /* ── Border Radii ─────────────────────────────────────── */
+  --radius-sm:   4px;
+  --radius-md:   8px;
+  --radius-lg:   12px;
+  --radius-xl:   16px;
+  --radius-full: 9999px;
+
+  /* ── Transitions ──────────────────────────────────────── */
+  --transition-fast: 150ms ease;
+  --transition-base: 200ms ease;
+}
+
+/* ============================================================
+   Reset & Base
+   ============================================================ */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: var(--background);
+  color: var(--on-surface);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+::selection {
+  background-color: var(--primary-container);
+  color: var(--on-primary-container);
+}
+
+/* ── Scrollbar ──────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--outline-variant);
+  border-radius: var(--radius-full);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--outline);
+}
+
+/* ── Typography helpers ─────────────────────────────────── */
+.font-display-lg {
+  font-family: 'Inter', sans-serif;
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.font-headline-md {
+  font-family: 'Inter', sans-serif;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+}
+
+.font-h1 {
+  font-family: 'Inter', sans-serif;
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 32px;
+  letter-spacing: -0.02em;
+}
+
+.font-h2 {
+  font-family: 'Inter', sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 24px;
+  letter-spacing: -0.01em;
+}
+
+.font-ui-medium {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+}
+
+.font-ui-small {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 16px;
+}
+
+.font-body-md {
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+.font-label-sm {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
+}
+
+.font-editor {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.75;
+}
+
+.font-editor-main {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 24px;
+}
+
+.font-editor-meta {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 18px;
+}
+
+/* ── Material Symbols Defaults ──────────────────────────── */
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+/* ── Animation keyframes ────────────────────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50%      { opacity: 0.8; transform: scale(1.8); }
+}

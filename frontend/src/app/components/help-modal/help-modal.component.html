@@ -1,0 +1,84 @@
+@if (isOpen$ | async) {
+  <div class="modal-overlay" (click)="onOverlayClick($event)">
+    <div class="modal-card" role="dialog" aria-labelledby="help-title">
+
+      <!-- Header -->
+      <div class="modal-header">
+        <div class="modal-header__left">
+          <span class="material-symbols-outlined modal-header__icon" style="font-variation-settings: 'FILL' 1;">help</span>
+          <h2 id="help-title" class="modal-header__title">Help &amp; Support</h2>
+        </div>
+        <button class="modal-header__close" (click)="close()" aria-label="Close">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <!-- Body -->
+      <div class="modal-body">
+
+        <!-- How sharing works -->
+        <div class="help-section">
+          <h3 class="help-section__title">
+            <span class="material-symbols-outlined help-section__icon">group</span>
+            How sharing works
+          </h3>
+          <p class="help-section__desc">
+            SyncPad uses open link sharing. Anyone with the URL can view and edit this document in real-time. Keep your links secure and share only with trusted collaborators.
+          </p>
+        </div>
+
+        <!-- Basic Usage -->
+        <div class="help-section">
+          <h3 class="help-section__title">
+            <span class="material-symbols-outlined help-section__icon">bolt</span>
+            Basic Usage
+          </h3>
+          <p class="help-section__desc">
+            Changes are synced instantly. You'll see colored cursors when others are typing. Inactive cursors fade away to keep your workspace distraction-free.
+          </p>
+        </div>
+
+        <div class="modal-divider"></div>
+
+        <!-- Keyboard Shortcuts -->
+        <div class="help-section">
+          <h3 class="help-section__title">
+            <span class="material-symbols-outlined help-section__icon">keyboard</span>
+            Keyboard Shortcuts
+          </h3>
+          <div class="shortcuts-grid">
+            <div class="shortcut-row">
+              <span class="shortcut-row__label">Save Document</span>
+              <div class="shortcut-row__keys">
+                <kbd>Cmd/Ctrl</kbd>
+                <kbd>S</kbd>
+              </div>
+            </div>
+            <div class="shortcut-row">
+              <span class="shortcut-row__label">Open Settings</span>
+              <div class="shortcut-row__keys">
+                <kbd>Cmd/Ctrl</kbd>
+                <kbd>P</kbd>
+              </div>
+            </div>
+            <div class="shortcut-row">
+              <span class="shortcut-row__label">Copy Link</span>
+              <div class="shortcut-row__keys">
+                <kbd>Cmd/Ctrl</kbd>
+                <kbd>Shift</kbd>
+                <kbd>C</kbd>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="modal-footer">
+        <button class="modal-footer__btn modal-footer__btn--primary" (click)="close()" id="btn-got-it">
+          Got it
+        </button>
+      </div>
+    </div>
+  </div>
+}

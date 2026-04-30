@@ -1,0 +1,25 @@
+<nav class="navbar">
+  <div class="navbar__left">
+    <span class="navbar__brand">SyncPad</span>
+    <div class="navbar__divider"></div>
+    <span class="navbar__doc-title">Untitled Document.md</span>
+  </div>
+
+  <div class="navbar__right">
+    <button class="navbar__btn navbar__btn--text" (click)="copyLink()" id="btn-copy-link">
+      Copy Link
+    </button>
+    <button class="navbar__btn navbar__btn--primary" id="btn-share">
+      Share
+    </button>
+
+    <div class="navbar__divider"></div>
+
+    <button class="navbar__icon-btn" (click)="openSettings()" id="btn-settings" aria-label="Settings">
+      <span class="material-symbols-outlined">settings</span>
+    </button>
+    <button class="navbar__icon-btn" (click)="openHelp()" id="btn-help" aria-label="Help">
+      <span class="material-symbols-outlined">help</span>
+    </button>
+  </div>
+</nav>

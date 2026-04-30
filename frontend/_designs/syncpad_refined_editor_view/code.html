@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SyncPad - Editor</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary-fixed-dim": "#c3c0ff",
+                        "surface-container-low": "#1b1b24",
+                        "surface-variant": "#35343e",
+                        "on-tertiary-fixed": "#351000",
+                        "secondary": "#c2c6d2",
+                        "surface-container-highest": "#35343e",
+                        "primary": "#c3c0ff",
+                        "tertiary-fixed-dim": "#ffb695",
+                        "outline-variant": "#464555",
+                        "on-primary-container": "#dad7ff",
+                        "secondary-fixed-dim": "#c2c6d2",
+                        "tertiary": "#ffb695",
+                        "tertiary-fixed": "#ffdbcc",
+                        "surface": "#13121b",
+                        "on-primary": "#1d00a5",
+                        "primary-fixed": "#e2dfff",
+                        "on-surface": "#e4e1ee",
+                        "outline": "#918fa1",
+                        "inverse-primary": "#4d44e3",
+                        "secondary-container": "#444953",
+                        "error-container": "#93000a",
+                        "on-secondary-fixed-variant": "#424750",
+                        "on-primary-fixed": "#0f0069",
+                        "on-secondary-container": "#b4b8c4",
+                        "on-tertiary-container": "#ffd2be",
+                        "surface-container": "#1f1f28",
+                        "inverse-surface": "#e4e1ee",
+                        "on-primary-fixed-variant": "#3323cc",
+                        "on-background": "#e4e1ee",
+                        "surface-container-lowest": "#0e0d16",
+                        "secondary-fixed": "#dee2ee",
+                        "surface-container-high": "#2a2933",
+                        "on-secondary": "#2c313a",
+                        "on-surface-variant": "#c7c4d8",
+                        "primary-container": "#4f46e5",
+                        "error": "#ffb4ab",
+                        "on-secondary-fixed": "#171c24",
+                        "on-error-container": "#ffdad6",
+                        "tertiary-container": "#a44100",
+                        "on-tertiary-fixed-variant": "#7b2f00",
+                        "surface-tint": "#c3c0ff",
+                        "background": "#13121b",
+                        "surface-dim": "#13121b",
+                        "surface-bright": "#393842",
+                        "on-tertiary": "#571f00",
+                        "on-error": "#690005",
+                        "inverse-on-surface": "#302f39"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    spacing: {
+                        "unit": "4px",
+                        "xl": "48px",
+                        "sm": "8px",
+                        "lg": "24px",
+                        "md": "16px",
+                        "gutter": "16px",
+                        "editor-padding": "32px",
+                        "xs": "4px"
+                    },
+                    fontFamily: {
+                        "display-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "body-md": ["Inter"],
+                        "code-editor": ["JetBrains Mono"]
+                    },
+                    fontSize: {
+                        "display-lg": ["32px", { lineHeight: "1.2", letterSpacing: "-0.02em", fontWeight: "700" }],
+                        "headline-md": ["20px", { lineHeight: "1.4", letterSpacing: "-0.01em", fontWeight: "600" }],
+                        "label-sm": ["13px", { lineHeight: "1.2", letterSpacing: "0.01em", fontWeight: "500" }],
+                        "body-md": ["15px", { lineHeight: "1.6", fontWeight: "400" }],
+                        "code-editor": ["14px", { lineHeight: "1.75", fontWeight: "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-surface min-h-screen flex flex-col font-body-md">
+<nav class="bg-[#0F1115] fixed w-full top-0 border-b border-[#2A2F38] flex justify-between items-center h-14 px-6 z-50">
+<div class="flex items-center gap-4">
+<span class="text-lg font-bold tracking-tighter text-slate-100">SyncPad</span>
+<div class="h-4 w-[1px] bg-[#2A2F38] mx-2"></div>
+<span class="text-sm font-['Inter'] text-slate-400">Untitled Document.md</span>
+</div>
+<div class="flex items-center gap-3">
+<button class="font-['Inter'] text-sm tracking-tight text-slate-400 hover:text-white hover:bg-[#22262E] transition-colors active:scale-95 duration-150 px-3 py-1.5 rounded-md">
+                Copy Link
+            </button>
+<button class="font-['Inter'] text-sm tracking-tight text-white bg-[#4F46E5] hover:bg-opacity-90 transition-colors active:scale-95 duration-150 px-4 py-1.5 rounded-md shadow-sm">
+                Share
+            </button>
+<div class="h-4 w-[1px] bg-[#2A2F38] mx-1"></div>
+<button class="text-slate-400 hover:text-white p-1.5 rounded-md hover:bg-[#22262E] transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="settings" style="font-size: 20px;">settings</span>
+</button>
+<button class="text-slate-400 hover:text-white p-1.5 rounded-md hover:bg-[#22262E] transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="help" style="font-size: 20px;">help</span>
+</button>
+</div>
+</nav>
+<main class="flex-1 w-full pt-28 pb-32 px-4 sm:px-6 md:px-8 flex flex-col items-center overflow-y-auto">
+<div class="w-full max-w-[800px] bg-surface-container-low rounded-xl border border-outline-variant/50 shadow-sm min-h-[665px] flex overflow-hidden">
+<div class="w-12 border-r border-outline-variant/30 pt-8 pb-8 flex flex-col items-end pr-3 font-code-editor text-code-editor text-outline select-none bg-surface-container-lowest/30">
+<div class="opacity-40">1</div>
+<div class="opacity-40">2</div>
+<div class="opacity-40">3</div>
+<div class="text-primary-fixed">4</div>
+<div class="opacity-40">5</div>
+<div class="opacity-40">6</div>
+<div class="opacity-40">7</div>
+</div>
+<div class="flex-1 pt-8 pb-8 pl-4 pr-8 font-code-editor text-code-editor text-on-surface relative focus:outline-none" contenteditable="true" spellcheck="false">
+<div class="whitespace-pre"><span class="text-secondary"># Project SyncPad Architecture</span></div>
+<div class="whitespace-pre h-[1.75em]"></div>
+<div class="whitespace-pre">The core engine relies on a distributed state graph to ensure</div>
+<div class="whitespace-pre bg-white/5 -ml-4 pl-4 py-[1px] w-[calc(100%+2rem)] border-l-2 border-primary-fixed">low-latency synchronization across multiple client sessions.</div>
+<div class="whitespace-pre h-[1.75em]"></div>
+<div class="whitespace-pre"><span class="text-tertiary">```javascript</span></div>
+<div class="whitespace-pre"><span class="text-primary-fixed-dim">function</span> <span class="text-on-surface-variant">initializeSync</span>() {</div>
+</div>
+</div>
+</main>
+<div class="fixed bottom-6 right-8 bg-surface-container-high/60 backdrop-blur-md border border-outline-variant/40 rounded-full pl-3 pr-4 py-1.5 flex items-center gap-3 shadow-lg z-40">
+<div class="flex items-center gap-2">
+<span class="relative flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-fixed opacity-40"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-primary-fixed"></span>
+</span>
+<span class="font-label-sm text-label-sm text-on-surface">Connected</span>
+</div>
+<div class="w-[1px] h-3 bg-outline-variant/50"></div>
+<div class="flex items-center gap-1.5 text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="cloud_done" style="font-size: 14px;">cloud_done</span>
+<span class="font-label-sm text-label-sm">Saved</span>
+</div>
+<div class="w-[1px] h-3 bg-outline-variant/50"></div>
+<span class="font-code-editor text-[11px] text-outline">UTF-8</span>
+</div>
+</body></html>

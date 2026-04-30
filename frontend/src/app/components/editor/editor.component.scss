@@ -1,0 +1,109 @@
+.editor-main {
+  flex: 1;
+  width: 100%;
+  padding-top: 112px;   /* navbar(56) + top spacing */
+  padding-bottom: 128px;
+  padding-left: 16px;
+  padding-right: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-y: auto;
+
+  @media (min-width: 640px) {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+  @media (min-width: 768px) {
+    padding-left: 32px;
+    padding-right: 32px;
+  }
+}
+
+.editor-card {
+  width: 100%;
+  max-width: 800px;
+  background-color: var(--surface-container-low);
+  border-radius: 12px;
+  border: 1px solid rgba(70, 69, 85, 0.5); // outline-variant/50
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  min-height: 665px;
+  display: flex;
+  overflow: hidden;
+}
+
+/* ── Line Gutter ────────────────────────────────────────── */
+.editor-gutter {
+  width: 48px;
+  border-right: 1px solid rgba(70, 69, 85, 0.3);
+  padding: 32px 12px 32px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  line-height: 1.75;
+  color: var(--outline);
+  user-select: none;
+  background-color: rgba(14, 13, 22, 0.3); // surface-container-lowest/30
+
+  &.hidden {
+    display: none;
+  }
+
+  &__line {
+    opacity: 0.4;
+
+    &--active {
+      opacity: 1;
+      color: var(--primary-fixed-dim);
+    }
+  }
+}
+
+/* ── Editor Content ─────────────────────────────────────── */
+.editor-content {
+  flex: 1;
+  padding: 32px 32px 32px 16px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  line-height: 1.75;
+  color: var(--on-surface);
+  outline: none;
+  position: relative;
+}
+
+.editor-line {
+  white-space: pre;
+
+  &--blank {
+    height: 1.75em;
+  }
+
+  &--active {
+    background-color: rgba(255, 255, 255, 0.05);
+    margin-left: -16px;
+    padding-left: 16px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+    width: calc(100% + 48px);
+    border-left: 2px solid var(--primary-fixed-dim);
+  }
+}
+
+/* ── Syntax Tokens ──────────────────────────────────────── */
+.token-heading {
+  color: var(--secondary);
+}
+
+.token-tertiary {
+  color: var(--tertiary);
+}
+
+.token-keyword {
+  color: var(--primary-fixed-dim);
+}
+
+.token-function {
+  color: var(--on-surface-variant);
+}

@@ -1,0 +1,24 @@
+#Environment variables
+.env
+**/.env
+
+#IDE
+.vscode/
+
+# Binaries and compiled exe
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Dependencies (CRITICAL: Do not upload this folder)
+node_modules/
+
+# Angular build output
+dist/
+.angular/
+
+# OS junk
+.DS_Store
+Thumbs.db

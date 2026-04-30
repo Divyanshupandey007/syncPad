@@ -1,0 +1,191 @@
+/* ── Overlay ─────────────────────────────────────────────── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(13, 13, 13, 0.6);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  animation: fadeIn 200ms ease;
+}
+
+/* ── Card ────────────────────────────────────────────────── */
+.modal-card {
+  width: 500px;
+  max-width: calc(100vw - 40px);
+  background-color: var(--modal-bg);
+  border: 1px solid var(--modal-border);
+  border-radius: 12px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 101;
+  animation: slideUp 250ms ease;
+}
+
+/* ── Header ──────────────────────────────────────────────── */
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  border-bottom: 1px solid var(--modal-border);
+
+  &__left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  &__icon {
+    font-size: 20px;
+    color: var(--primary-container);
+  }
+
+  &__title {
+    font-family: 'Inter', sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 24px;
+    letter-spacing: -0.01em;
+    color: var(--on-surface);
+  }
+
+  &__close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    color: var(--on-surface-variant);
+    padding: 4px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: color var(--transition-fast);
+
+    .material-symbols-outlined {
+      font-size: 20px;
+    }
+
+    &:hover {
+      color: var(--on-surface);
+    }
+  }
+}
+
+/* ── Body ────────────────────────────────────────────────── */
+.modal-body {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.modal-divider {
+  width: 100%;
+  height: 1px;
+  background-color: var(--modal-border);
+}
+
+/* ── Help Sections ───────────────────────────────────────── */
+.help-section {
+  &__title {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 20px;
+    color: var(--on-surface);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  &__icon {
+    font-size: 16px !important;
+    color: var(--surface-tint);
+  }
+
+  &__desc {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1.6;
+    color: var(--on-surface-variant);
+    padding-left: 24px;
+  }
+}
+
+/* ── Shortcuts ───────────────────────────────────────────── */
+.shortcuts-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-left: 24px;
+}
+
+.shortcut-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+
+  &__label {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 16px;
+    color: var(--on-surface-variant);
+  }
+
+  &__keys {
+    display: flex;
+    gap: 4px;
+  }
+}
+
+kbd {
+  display: inline-block;
+  background-color: #2a2a2b;
+  border: 1px solid #353536;
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 400;
+  color: var(--on-surface);
+}
+
+/* ── Footer ──────────────────────────────────────────────── */
+.modal-footer {
+  padding: 16px;
+  border-top: 1px solid var(--modal-border);
+  display: flex;
+  justify-content: flex-end;
+
+  &__btn {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+
+    &--primary {
+      background-color: var(--primary-container);
+      color: var(--on-primary-container);
+      padding: 8px 16px;
+
+      &:hover {
+        filter: brightness(1.1);
+      }
+    }
+  }
+}

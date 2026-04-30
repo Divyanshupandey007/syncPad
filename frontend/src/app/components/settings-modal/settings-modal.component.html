@@ -1,0 +1,119 @@
+@if (isOpen$ | async) {
+  <div class="modal-overlay" (click)="onOverlayClick($event)">
+    <div class="settings-card" role="dialog" aria-labelledby="settings-title">
+
+      <!-- Header -->
+      <div class="settings-header">
+        <h2 id="settings-title" class="settings-header__title">Editor Settings</h2>
+        <button class="settings-header__close" (click)="close()" aria-label="Close">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <!-- Body -->
+      <div class="settings-body">
+
+        <!-- APPEARANCE Section -->
+        <div class="settings-section">
+          <h3 class="settings-section__label">Appearance</h3>
+
+          <!-- Theme Toggle -->
+          <div class="settings-row">
+            <div class="settings-row__info">
+              <span class="settings-row__title">Theme</span>
+              <span class="settings-row__subtitle">Dark mode preference</span>
+            </div>
+            <label class="toggle" id="toggle-theme">
+              <input type="checkbox" class="toggle__input" [(ngModel)]="isDarkMode">
+              <span class="toggle__track">
+                <span class="toggle__thumb"></span>
+              </span>
+            </label>
+          </div>
+
+          <!-- Font Family -->
+          <div class="settings-field">
+            <label class="settings-field__label">Font Family</label>
+            <div class="settings-select-wrapper">
+              <select class="settings-select" [(ngModel)]="fontFamily" id="select-font-family">
+                @for (font of fontFamilies; track font) {
+                  <option [value]="font">{{ font }}</option>
+                }
+              </select>
+              <span class="material-symbols-outlined settings-select__chevron">expand_more</span>
+            </div>
+          </div>
+
+          <!-- Font Size -->
+          <div class="settings-field">
+            <div class="settings-field__header">
+              <label class="settings-field__label">Font Size</label>
+              <span class="settings-field__value">{{ fontSize }}px</span>
+            </div>
+            <input type="range" class="settings-range" [(ngModel)]="fontSize"
+                   [min]="12" [max]="24" id="range-font-size">
+          </div>
+        </div>
+
+        <!-- Divider -->
+        <div class="settings-divider"></div>
+
+        <!-- EDITOR Section -->
+        <div class="settings-section">
+          <h3 class="settings-section__label">Editor</h3>
+
+          <!-- Syntax Language -->
+          <div class="settings-field">
+            <label class="settings-field__label">Syntax Language</label>
+            <div class="settings-select-wrapper">
+              <select class="settings-select" [(ngModel)]="syntaxLanguage" id="select-syntax">
+                @for (lang of languages; track lang) {
+                  <option [value]="lang">{{ lang }}</option>
+                }
+              </select>
+              <span class="material-symbols-outlined settings-select__chevron">expand_more</span>
+            </div>
+          </div>
+
+          <!-- Line Numbers -->
+          <div class="settings-row settings-row--spaced">
+            <div class="settings-row__info">
+              <span class="settings-row__title">Line Numbers</span>
+              <span class="settings-row__subtitle">Show gutter numbers</span>
+            </div>
+            <label class="toggle" id="toggle-line-numbers">
+              <input type="checkbox" class="toggle__input" [(ngModel)]="lineNumbers">
+              <span class="toggle__track">
+                <span class="toggle__thumb"></span>
+              </span>
+            </label>
+          </div>
+
+          <!-- Word Wrap -->
+          <div class="settings-row settings-row--spaced">
+            <div class="settings-row__info">
+              <span class="settings-row__title">Word Wrap</span>
+              <span class="settings-row__subtitle">Wrap long lines to editor width</span>
+            </div>
+            <label class="toggle" id="toggle-word-wrap">
+              <input type="checkbox" class="toggle__input" [(ngModel)]="wordWrap">
+              <span class="toggle__track" [class.toggle__track--off]="!wordWrap">
+                <span class="toggle__thumb"></span>
+              </span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="settings-footer">
+        <button class="settings-footer__btn settings-footer__btn--outline" (click)="resetDefaults()" id="btn-reset">
+          Reset Defaults
+        </button>
+        <button class="settings-footer__btn settings-footer__btn--primary" (click)="save()" id="btn-save">
+          Save Changes
+        </button>
+      </div>
+    </div>
+  </div>
+}
