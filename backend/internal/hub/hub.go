@@ -42,14 +42,6 @@ func NewRoom(id string) *Room {
 }
 
 func (r *Room) Run() {
-	// for {
-	// 	select {
-	// 	case message := <-r.Broadcast:
-	// 		r.Lock()
-	// 		r.Txt = string(message)
-	// 		r.Unlock()
-	// 	}
-	// }
 	for message := range r.Broadcast {
 		r.Lock()
 		r.Txt = string(message)

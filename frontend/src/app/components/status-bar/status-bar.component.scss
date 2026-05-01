@@ -38,6 +38,14 @@
     background-color: var(--primary-fixed-dim);
     opacity: 0.4;
     animation: pulse-dot 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+
+    &--connected {
+      background-color: var(--primary-fixed-dim);
+    }
+    &--disconnected {
+      background-color: #f87171;
+      animation: none;
+    }
   }
 
   &__dot {
@@ -47,6 +55,13 @@
     height: 8px;
     border-radius: 50%;
     background-color: var(--primary-fixed-dim);
+
+    &--connected {
+      background-color: var(--primary-fixed-dim);
+    }
+    &--disconnected {
+      background-color: #f87171;
+    }
   }
 
   &__label {
@@ -56,6 +71,10 @@
     line-height: 1.2;
     letter-spacing: 0.01em;
     color: var(--on-surface);
+
+    &--warn {
+      color: #f87171;
+    }
   }
 
   &__icon {
