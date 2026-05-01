@@ -2,10 +2,26 @@
   <!-- Connected indicator -->
   <div class="status-bar__section">
     <span class="status-bar__dot-wrapper">
-      <span class="status-bar__dot-ping"></span>
-      <span class="status-bar__dot"></span>
+      <span class="status-bar__dot-ping"
+            [class.status-bar__dot-ping--connected]="(status$ | async) === 'connected'"
+            [class.status-bar__dot-ping--disconnected]="(status$ | async) === 'disconnected'">
+      </span>
+      <span class="status-bar__dot"
+            [class.status-bar__dot--connected]="(status$ | async) === 'connected'"
+            [class.status-bar__dot--disconnected]="(status$ | async) === 'disconnected'">
+      </span>
     </span>
-    <span class="status-bar__label">Connected</span>
+    @switch (status$ | async) {
+      @case ('connected') {
+        <span class="status-bar__label">Connected</span>
+      }
+      @case ('connecting') {
+        <span class="status-bar__label">Connecting…</span>
+      }
+      @case ('disconnected') {
+        <span class="status-bar__label status-bar__label--warn">Disconnected</span>
+      }
+    }
   </div>
 
   <div class="status-bar__separator"></div>
