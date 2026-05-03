@@ -5,9 +5,12 @@ import (
 	"log"
 	"net/http"
 	"syncPad/internal/hub"
+	"syncPad/internal/storage"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/gorilla/websocket"
+	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/redis/go-redis/v9"
 )
 
 var wsupgrader = websocket.Upgrader{
@@ -16,7 +19,10 @@ var wsupgrader = websocket.Upgrader{
 	},
 }
 
-var manager = hub.NewManager()
+var Manager = hub.NewManager()
+var Pool *pgxpool.Pool
+
+var RedisClient *redis.Client
 
 // HandleGetPad serves the document or initial state for a pad
 func HandleGetPad(w http.ResponseWriter, r *http.Request) {
@@ -33,14 +39,17 @@ func HandleWebSocket(w http.ResponseWriter, r *http.Request) {
 
 	docId := chi.URLParam(r, "documentId")
 
-	manager.Lock()
-	room, exists := manager.Rooms[docId]
+	Manager.Lock()
+	room, exists := Manager.Rooms[docId]
 	if !exists {
 		room = hub.NewRoom(docId)
-		manager.Rooms[docId] = room
+		room.Txt = storage.LoadDocument(Pool, docId)
+		room.Rdb = RedisClient
+		Manager.Rooms[docId] = room
 		go room.Run()
+		go room.ListenRedis()
 	}
-	manager.Unlock()
+	Manager.Unlock()
 
 	client := &hub.Client{
 		Conn: conn,
@@ -51,6 +60,12 @@ func HandleWebSocket(w http.ResponseWriter, r *http.Request) {
 	room.Lock()
 	room.Clients[client] = true
 	room.Unlock()
+
+	room.RLock()
+	if len(room.Txt) != 0 {
+		conn.WriteMessage(websocket.TextMessage, []byte(room.Txt))
+	}
+	room.RUnlock()
 
 	go func() {
 		for message := range client.Send {
