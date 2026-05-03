@@ -78,8 +78,8 @@ npm start
 ## 🗺️ Roadmap
 - [x] Phase 1: Basic HTTP Routing & API Setup
 - [x] Phase 2: In-Memory Concurrent WebSocket Engine
-- [ ] Phase 3: PostgreSQL Integration & Write-Behind Syncer
-- [ ] Phase 4: Redis Pub/Sub for Horizontal Scaling
+- [x] Phase 3: PostgreSQL Integration & Write-Behind Syncer
+- [x] Phase 4: Redis Pub/Sub for Horizontal Scaling
 - [ ] Phase 5: Graceful Shutdown implementation
 
 ## 📜 License
