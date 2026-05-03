@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"syncPad/internal/hub"
@@ -24,11 +23,6 @@ var Pool *pgxpool.Pool
 
 var RedisClient *redis.Client
 
-// HandleGetPad serves the document or initial state for a pad
-func HandleGetPad(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Pad document handler")
-}
-
 // HandleWebSocket upgrades the connection to a websocket for a pad
 func HandleWebSocket(w http.ResponseWriter, r *http.Request) {
 	conn, err := wsupgrader.Upgrade(w, r, nil)
@@ -43,7 +37,7 @@ func HandleWebSocket(w http.ResponseWriter, r *http.Request) {
 	room, exists := Manager.Rooms[docId]
 	if !exists {
 		room = hub.NewRoom(docId)
-		room.Txt = storage.LoadDocument(Pool, docId)
+		room.Doc = storage.LoadDocument(Pool, docId)
 		room.Rdb = RedisClient
 		Manager.Rooms[docId] = room
 		go room.Run()
@@ -62,14 +56,16 @@ func HandleWebSocket(w http.ResponseWriter, r *http.Request) {
 	room.Unlock()
 
 	room.RLock()
-	if len(room.Txt) != 0 {
-		conn.WriteMessage(websocket.TextMessage, []byte(room.Txt))
+	if len(room.Doc) != 0 {
+		// Prepend 0x02 type byte so the frontend knows this is a full snapshot
+		snapshot := append([]byte{0x02}, room.Doc...)
+		conn.WriteMessage(websocket.BinaryMessage, snapshot)
 	}
 	room.RUnlock()
 
 	go func() {
 		for message := range client.Send {
-			client.Conn.WriteMessage(websocket.TextMessage, message)
+			client.Conn.WriteMessage(websocket.BinaryMessage, message)
 		}
 	}()
 
@@ -82,6 +78,6 @@ func HandleWebSocket(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 
-		room.Broadcast <- message
+		room.Broadcast <- hub.BroadcastMsg{Data: message, Sender: client}
 	}
 }

@@ -15,7 +15,7 @@ func Start(manager *hub.Manager, pool *pgxpool.Pool) {
 			manager.RLock()
 			for _, room := range manager.Rooms {
 				room.RLock()
-				storage.SaveDocument(pool, room.ID, room.Txt)
+				storage.SaveDocument(pool, room.ID, room.Doc)
 				room.RUnlock()
 			}
 			manager.RUnlock()

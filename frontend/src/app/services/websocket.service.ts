@@ -3,13 +3,17 @@ import { BehaviorSubject, Subject } from 'rxjs';
 
 export type ConnectionStatus = 'connected' | 'disconnected' | 'connecting';
 
+/** Message type byte constants matching the backend protocol */
+export const MSG_TYPE_CHANGE = 0x01;
+export const MSG_TYPE_SNAPSHOT = 0x02;
+
 @Injectable({ providedIn: 'root' })
 export class WebSocketService {
   private ws: WebSocket | null = null;
   private ngZone = inject(NgZone);
 
-  /** Emits incoming text messages from the server */
-  readonly incomingMessage$ = new Subject<string>();
+  /** Emits incoming binary messages from the server */
+  readonly incomingMessage$ = new Subject<Uint8Array>();
 
   /** Tracks the current connection status */
   private statusSubject = new BehaviorSubject<ConnectionStatus>('disconnected');
@@ -34,13 +38,20 @@ export class WebSocketService {
     this.currentDocId = documentId;
     this.statusSubject.next('connecting');
 
-    const wsUrl = `ws://localhost:3000/ws/${documentId}`;
+    // Dynamically build WebSocket URL from current browser location.
+    // In Docker (behind Nginx), this connects to the same host:port the page loaded from.
+    // Nginx then proxies /ws/ to the Go backend.
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const host = window.location.host;
+    const wsUrl = `${protocol}//${host}/ws/${documentId}`;
 
     // Create WebSocket outside Angular's zone to avoid unnecessary
     // change detection on every internal WebSocket event.
     // We manually re-enter the zone only when we need Angular to update.
     this.ngZone.runOutsideAngular(() => {
       this.ws = new WebSocket(wsUrl);
+      // Receive binary data as ArrayBuffer (not Blob)
+      this.ws.binaryType = 'arraybuffer';
 
       this.ws.onopen = () => {
         console.log(`[WebSocket] Connected to document: ${documentId}`);
@@ -48,8 +59,9 @@ export class WebSocketService {
       };
 
       this.ws.onmessage = (event: MessageEvent) => {
-        // Re-enter Angular's zone so subscribers trigger change detection
-        this.ngZone.run(() => this.incomingMessage$.next(event.data));
+        // Binary messages arrive as ArrayBuffer
+        const data = new Uint8Array(event.data as ArrayBuffer);
+        this.ngZone.run(() => this.incomingMessage$.next(data));
       };
 
       this.ws.onclose = () => {
@@ -65,8 +77,8 @@ export class WebSocketService {
     });
   }
 
-  /** Send text content to the Go backend */
-  send(data: string): void {
+  /** Send binary data to the Go backend */
+  send(data: Uint8Array): void {
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
       this.ws.send(data);
     }

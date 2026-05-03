@@ -1,0 +1,43 @@
+# Root docker-compose.yml — orchestrates the full SyncPad stack.
+# Run from project root:  docker compose up --build
+
+services:
+  # ─── Infrastructure ───────────────────────────
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: syncpad
+      POSTGRES_DB: syncpad
+      POSTGRES_PASSWORD: syncpad123
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  redis:
+    image: redis:8
+    ports:
+      - "6379:6379"
+
+  # ─── Application ──────────────────────────────
+  backend:
+    build: ./backend
+    ports:
+      - "3000:3000"
+    environment:
+      # Use service names (db, redis) as hostnames — Docker networking
+      DATABASE_URL: postgres://syncpad:syncpad123@db:5432/syncpad?sslmode=disable
+      REDIS_URL: redis:6379
+    depends_on:
+      - db
+      - redis
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:
