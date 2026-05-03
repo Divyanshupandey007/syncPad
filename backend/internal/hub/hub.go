@@ -2,8 +2,10 @@ package hub
 
 import (
 	"sync"
+	"syncPad/internal/redisclient"
 
 	"github.com/gorilla/websocket"
+	"github.com/redis/go-redis/v9"
 )
 
 type Manager struct {
@@ -22,6 +24,7 @@ type Room struct {
 	Txt       string
 	Clients   map[*Client]bool
 	Broadcast chan []byte
+	Rdb       *redis.Client
 	sync.RWMutex
 }
 
@@ -48,6 +51,20 @@ func (r *Room) Run() {
 		r.Unlock()
 		for client := range r.Clients {
 			client.Send <- message
+		}
+		redisclient.Publish(r.Rdb, r.ID, message)
+	}
+}
+
+func (r *Room) ListenRedis() {
+	pubsub := redisclient.Subscribe(r.Rdb, r.ID)
+	ch := pubsub.Channel()
+	for msg := range ch {
+		r.Lock()
+		r.Txt = msg.Payload
+		r.Unlock()
+		for client := range r.Clients {
+			client.Send <- []byte(msg.Payload)
 		}
 	}
 }
