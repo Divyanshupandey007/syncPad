@@ -75,12 +75,5 @@ npm start
 ```
 *The Angular development server will start on `http://localhost:4200`*
 
-## 🗺️ Roadmap
-- [x] Phase 1: Basic HTTP Routing & API Setup
-- [x] Phase 2: In-Memory Concurrent WebSocket Engine
-- [x] Phase 3: PostgreSQL Integration & Write-Behind Syncer
-- [x] Phase 4: Redis Pub/Sub for Horizontal Scaling
-- [ ] Phase 5: Graceful Shutdown implementation
-
 ## 📜 License
 Distributed under the MIT License. See `LICENSE` for more information.
