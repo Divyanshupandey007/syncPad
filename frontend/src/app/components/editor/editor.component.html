@@ -1,23 +1,6 @@
 <main class="editor-main">
-  <div class="editor-card" [style.font-size.px]="(settings$ | async)?.fontSize">
-    <!-- Line Gutter -->
-    <div class="editor-gutter" [class.hidden]="!(settings$ | async)?.lineNumbers">
-      @for (line of [].constructor(lineCount); track $index) {
-        <div class="editor-gutter__line">
-          {{ $index + 1 }}
-        </div>
-      }
-    </div>
-
-    <!-- Editor Content -->
-    <textarea
-      class="editor-textarea"
-      [value]="content"
-      (input)="onTextInput($event)"
-      spellcheck="false"
-      placeholder="Start typing..."
-      [style.font-family]="(settings$ | async)?.fontFamily + ', monospace'"
-      [style.white-space]="(settings$ | async)?.wordWrap ? 'pre-wrap' : 'pre'"
-    ></textarea>
+  <div class="editor-card">
+    <!-- CodeMirror Editor Host -->
+    <div class="editor-cm-host" #editorHost></div>
   </div>
 </main>

@@ -13,51 +13,6 @@
       <!-- Body -->
       <div class="settings-body">
 
-        <!-- APPEARANCE Section -->
-        <div class="settings-section">
-          <h3 class="settings-section__label">Appearance</h3>
-
-          <!-- Theme Toggle -->
-          <div class="settings-row">
-            <div class="settings-row__info">
-              <span class="settings-row__title">Theme</span>
-              <span class="settings-row__subtitle">Dark mode preference</span>
-            </div>
-            <label class="toggle" id="toggle-theme">
-              <input type="checkbox" class="toggle__input" [(ngModel)]="isDarkMode">
-              <span class="toggle__track">
-                <span class="toggle__thumb"></span>
-              </span>
-            </label>
-          </div>
-
-          <!-- Font Family -->
-          <div class="settings-field">
-            <label class="settings-field__label">Font Family</label>
-            <div class="settings-select-wrapper">
-              <select class="settings-select" [(ngModel)]="fontFamily" id="select-font-family">
-                @for (font of fontFamilies; track font) {
-                  <option [value]="font">{{ font }}</option>
-                }
-              </select>
-              <span class="material-symbols-outlined settings-select__chevron">expand_more</span>
-            </div>
-          </div>
-
-          <!-- Font Size -->
-          <div class="settings-field">
-            <div class="settings-field__header">
-              <label class="settings-field__label">Font Size</label>
-              <span class="settings-field__value">{{ fontSize }}px</span>
-            </div>
-            <input type="range" class="settings-range" [(ngModel)]="fontSize"
-                   [min]="12" [max]="24" id="range-font-size">
-          </div>
-        </div>
-
-        <!-- Divider -->
-        <div class="settings-divider"></div>
-
         <!-- EDITOR Section -->
         <div class="settings-section">
           <h3 class="settings-section__label">Editor</h3>
@@ -66,13 +21,41 @@
           <div class="settings-field">
             <label class="settings-field__label">Syntax Language</label>
             <div class="settings-select-wrapper">
-              <select class="settings-select" [(ngModel)]="syntaxLanguage" id="select-syntax">
+              <select class="settings-select" [(ngModel)]="syntaxLanguage" (ngModelChange)="onLanguageChange()" id="select-syntax">
                 @for (lang of languages; track lang) {
                   <option [value]="lang">{{ lang }}</option>
                 }
               </select>
               <span class="material-symbols-outlined settings-select__chevron">expand_more</span>
             </div>
+          </div>
+
+          <!-- Format Code -->
+          <div class="settings-field">
+            <div class="settings-field__header">
+              <label class="settings-field__label">Format Code</label>
+              @if (formatStatus) {
+                <span class="settings-field__status" [class.settings-field__status--success]="formatStatus.startsWith('✓')" [class.settings-field__status--error]="formatStatus.startsWith('✗')">
+                  {{ formatStatus }}
+                </span>
+              }
+            </div>
+            <button
+              class="settings-format-btn"
+              [class.settings-format-btn--disabled]="!canFormat || isFormatting"
+              [disabled]="!canFormat || isFormatting"
+              (click)="formatCode()"
+              id="btn-format-code"
+            >
+              <span class="material-symbols-outlined settings-format-btn__icon">auto_fix_high</span>
+              @if (isFormatting) {
+                <span>Formatting...</span>
+              } @else if (canFormat) {
+                <span>Format {{ syntaxLanguage }}</span>
+              } @else {
+                <span>Formatting not available for {{ syntaxLanguage }}</span>
+              }
+            </button>
           </div>
 
           <!-- Line Numbers -->

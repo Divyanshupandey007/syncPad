@@ -1,94 +1,53 @@
 .editor-main {
   flex: 1;
   width: 100%;
-  padding-top: 112px;   /* navbar(56) + top spacing */
-  padding-bottom: 128px;
-  padding-left: 16px;
-  padding-right: 16px;
+  height: calc(100vh - 56px); /* Fill viewport below navbar */
+  padding: 20px;             /* Breathing room around the card */
   display: flex;
   flex-direction: column;
-  align-items: center;
-  overflow-y: auto;
-
-  @media (min-width: 640px) {
-    padding-left: 24px;
-    padding-right: 24px;
-  }
-  @media (min-width: 768px) {
-    padding-left: 32px;
-    padding-right: 32px;
-  }
+  overflow: hidden;           /* Pad itself never scrolls */
 }
 
 .editor-card {
   width: 100%;
-  max-width: 800px;
+  flex: 1;
+  min-height: 0;              /* Allow flex shrink for proper overflow */
   background-color: var(--surface-container-low);
   border-radius: 12px;
-  border: 1px solid rgba(70, 69, 85, 0.5); // outline-variant/50
+  border: 1px solid rgba(70, 69, 85, 0.5);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
-  min-height: 665px;
   display: flex;
   overflow: hidden;
 }
 
-/* ── Line Gutter ────────────────────────────────────────── */
-.editor-gutter {
-  width: 48px;
-  border-right: 1px solid rgba(70, 69, 85, 0.3);
-  padding: 32px 12px 32px 0;
+/* ── CodeMirror Host ────────────────────────────────────── */
+.editor-cm-host {
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 14px;
-  line-height: 1.75;
-  color: var(--outline);
-  user-select: none;
-  background-color: rgba(14, 13, 22, 0.3); // surface-container-lowest/30
-
-  &.hidden {
-    display: none;
-  }
-
-  &__line {
-    opacity: 0.4;
-
-    &--active {
-      opacity: 1;
-      color: var(--primary-fixed-dim);
-    }
-  }
 }
 
-/* ── Editor Textarea ───────────────────────────────────── */
-.editor-textarea {
+/* ── CodeMirror Overrides ───────────────────────────────── */
+
+/* Make the CM editor fill the card */
+:host ::ng-deep .cm-editor {
   flex: 1;
-  padding: 32px 32px 32px 16px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: inherit;
-  line-height: 1.75;
-  color: var(--on-surface);
-  background: transparent;
-  border: none;
+  min-height: 0;
   outline: none;
-  resize: none;
-  overflow-y: auto;
-  tab-size: 4;
-  white-space: pre;
-  caret-color: var(--primary-fixed-dim);
+}
 
-  &::placeholder {
-    color: var(--outline);
-    opacity: 0.5;
-  }
+:host ::ng-deep .cm-scroller {
+  overflow: auto;
 
-  /* Hide scrollbar but keep functionality */
+  /* Styled scrollbar */
   scrollbar-width: thin;
   scrollbar-color: rgba(70, 69, 85, 0.4) transparent;
 
   &::-webkit-scrollbar {
     width: 6px;
+    height: 6px;
   }
   &::-webkit-scrollbar-track {
     background: transparent;
@@ -97,4 +56,20 @@
     background-color: rgba(70, 69, 85, 0.4);
     border-radius: 3px;
   }
+}
+
+/* Gutter left padding */
+:host ::ng-deep .cm-gutters {
+  padding-left: 4px;
+}
+
+/* Subtle gutter line number opacity */
+:host ::ng-deep .cm-lineNumbers .cm-gutterElement {
+  opacity: 0.5;
+  min-width: 32px;
+  padding: 0 8px 0 4px;
+}
+
+:host ::ng-deep .cm-activeLineGutter .cm-gutterElement {
+  opacity: 1;
 }

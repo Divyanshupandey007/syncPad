@@ -94,6 +94,62 @@
 }
 
 /* ============================================================
+   Light Theme
+   ============================================================ */
+[data-theme="light"] {
+  /* ── Surface & Background ─────────────────────────────── */
+  --surface:                   #f8f9fc;
+  --surface-dim:               #edeef2;
+  --surface-bright:            #ffffff;
+  --surface-container-lowest:  #ffffff;
+  --surface-container-low:     #f3f4f8;
+  --surface-container:         #edeef2;
+  --surface-container-high:    #e7e8ec;
+  --surface-container-highest: #e1e2e6;
+  --surface-variant:           #e0e1e8;
+  --surface-tint:              #4f46e5;
+  --background:                #f8f9fc;
+
+  /* ── On-Surface (text on surfaces) ────────────────────── */
+  --on-surface:                #1a1c20;
+  --on-surface-variant:        #44474e;
+  --on-background:             #1a1c20;
+  --inverse-surface:           #2e3036;
+  --inverse-on-surface:        #f0f1f5;
+
+  /* ── Primary ──────────────────────────────────────────── */
+  --primary:                   #4f46e5;
+  --on-primary:                #ffffff;
+  --primary-container:         #4f46e5;
+  --on-primary-container:      #ffffff;
+  --inverse-primary:           #c3c0ff;
+  --primary-fixed:             #e2dfff;
+  --primary-fixed-dim:         #4f46e5;
+  --on-primary-fixed:          #0f0069;
+  --on-primary-fixed-variant:  #3323cc;
+
+  /* ── Outline ──────────────────────────────────────────── */
+  --outline:                   #74777f;
+  --outline-variant:           #c4c6cf;
+
+  /* ── Error ────────────────────────────────────────────── */
+  --error:                     #ba1a1a;
+  --on-error:                  #ffffff;
+  --error-container:           #ffdad6;
+  --on-error-container:        #410002;
+
+  /* ── Elevation layers ─────────────────────────────────── */
+  --elevation-0:               #ffffff;
+  --elevation-1:               #f5f6fa;
+  --elevation-2:               #eef0f5;
+  --elevation-border:          #dde0e8;
+  --modal-bg:                  #ffffff;
+  --modal-bg-alt:              #fafbfe;
+  --modal-header-bg:           #f5f6fa;
+  --modal-border:              #e0e2ea;
+}
+
+/* ============================================================
    Reset & Base
    ============================================================ */
 *, *::before, *::after {
@@ -115,6 +171,7 @@ body {
   color: var(--on-surface);
   min-height: 100vh;
   overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 ::selection {
