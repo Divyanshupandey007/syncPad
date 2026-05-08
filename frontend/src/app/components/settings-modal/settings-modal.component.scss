@@ -161,6 +161,57 @@
     line-height: 18px;
     color: var(--on-surface-variant);
   }
+
+  &__status {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 16px;
+    color: var(--on-surface-variant);
+    transition: color var(--transition-fast);
+
+    &--success {
+      color: #4ade80;
+    }
+
+    &--error {
+      color: var(--error);
+    }
+  }
+}
+
+/* ── Format Code Button ─────────────────────────────────── */
+.settings-format-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 16px;
+  background-color: var(--modal-header-bg);
+  border: 1px solid var(--modal-border);
+  color: var(--on-surface);
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+
+  &__icon {
+    font-size: 18px !important;
+    color: var(--primary-fixed-dim);
+  }
+
+  &:hover:not(:disabled) {
+    background-color: var(--surface-variant);
+    border-color: var(--primary-container);
+  }
+
+  &--disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
 }
 
 /* ── Select ──────────────────────────────────────────────── */

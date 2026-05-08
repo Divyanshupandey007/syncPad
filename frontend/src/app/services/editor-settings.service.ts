@@ -3,7 +3,6 @@ import { BehaviorSubject } from 'rxjs';
 
 export interface EditorSettings {
   theme: 'dark' | 'light';
-  fontFamily: string;
   fontSize: number;
   syntaxLanguage: string;
   lineNumbers: boolean;
@@ -12,7 +11,6 @@ export interface EditorSettings {
 
 const DEFAULT_SETTINGS: EditorSettings = {
   theme: 'dark',
-  fontFamily: 'JetBrains Mono',
   fontSize: 15,
   syntaxLanguage: 'JavaScript',
   lineNumbers: true,
@@ -26,6 +24,11 @@ export class EditorSettingsService {
 
   settings$ = this.settingsSubject.asObservable();
 
+  constructor() {
+    // Apply theme on service init
+    this.applyTheme(this.settingsSubject.value.theme);
+  }
+
   get currentSettings(): EditorSettings {
     return this.settingsSubject.value;
   }
@@ -34,11 +37,22 @@ export class EditorSettingsService {
     const updated = { ...this.settingsSubject.value, ...partial };
     this.settingsSubject.next(updated);
     this.saveSettings(updated);
+
+    // If theme changed, apply it immediately
+    if (partial.theme) {
+      this.applyTheme(partial.theme);
+    }
   }
 
   resetDefaults(): void {
     this.settingsSubject.next({ ...DEFAULT_SETTINGS });
     this.saveSettings(DEFAULT_SETTINGS);
+    this.applyTheme(DEFAULT_SETTINGS.theme);
+  }
+
+  /** Apply theme by setting data-theme attribute on <html> */
+  private applyTheme(theme: 'dark' | 'light'): void {
+    document.documentElement.setAttribute('data-theme', theme);
   }
 
   private loadSettings(): EditorSettings {

@@ -2,10 +2,38 @@
   <div class="navbar__left">
     <span class="navbar__brand">SyncPad</span>
     <div class="navbar__divider"></div>
-    <span class="navbar__doc-title">Untitled Document.md</span>
+    <input
+      class="navbar__doc-title-input"
+      type="text"
+      [value]="documentTitle"
+      (input)="onTitleInput($event)"
+      (focus)="onTitleFocus()"
+      (blur)="onTitleBlur()"
+      (keydown.enter)="onTitleEnter($event)"
+      spellcheck="false"
+      id="input-doc-title"
+    />
   </div>
 
   <div class="navbar__right">
+    <!-- Font Size Slider -->
+    <div class="navbar__font-size">
+      <span class="navbar__font-size-label navbar__font-size-label--small">A</span>
+      <input
+        type="range"
+        class="navbar__font-size-slider"
+        [min]="12"
+        [max]="24"
+        [value]="fontSize"
+        (input)="onFontSizeChange($event)"
+        id="range-font-size-topbar"
+      />
+      <span class="navbar__font-size-label navbar__font-size-label--large">A</span>
+      <span class="navbar__font-size-value">{{ fontSize }}px</span>
+    </div>
+
+    <div class="navbar__divider"></div>
+
     <button class="navbar__btn navbar__btn--text" (click)="copyLink()" id="btn-copy-link">
       Copy Link
     </button>
@@ -15,6 +43,10 @@
 
     <div class="navbar__divider"></div>
 
+    <!-- Theme Toggle -->
+    <button class="navbar__icon-btn" (click)="toggleTheme()" id="btn-theme" [attr.aria-label]="isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'">
+      <span class="material-symbols-outlined">{{ isDarkMode ? 'dark_mode' : 'light_mode' }}</span>
+    </button>
     <button class="navbar__icon-btn" (click)="openSettings()" id="btn-settings" aria-label="Settings">
       <span class="material-symbols-outlined">settings</span>
     </button>

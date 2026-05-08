@@ -3,6 +3,8 @@ import { AsyncPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ModalService } from '../../services/modal.service';
 import { EditorSettingsService, EditorSettings } from '../../services/editor-settings.service';
+import { CodeMirrorService } from '../../services/codemirror.service';
+import { FormatterService } from '../../services/formatter.service';
 
 @Component({
   selector: 'app-settings-modal',
@@ -14,44 +16,83 @@ import { EditorSettingsService, EditorSettings } from '../../services/editor-set
 export class SettingsModalComponent {
   modalService = inject(ModalService);
   settingsService = inject(EditorSettingsService);
+  private cmService = inject(CodeMirrorService);
+  private formatterService = inject(FormatterService);
 
   isOpen$ = this.modalService.settingsOpen$;
 
   // Local copies for two-way binding
-  theme: 'dark' | 'light' = 'dark';
-  fontFamily = 'JetBrains Mono';
-  fontSize = 15;
   syntaxLanguage = 'JavaScript';
   lineNumbers = true;
   wordWrap = false;
 
-  fontFamilies = ['JetBrains Mono', 'Fira Code', 'Source Code Pro', 'Consolas'];
-  languages = ['JavaScript', 'TypeScript', 'HTML', 'CSS', 'Python', 'Markdown'];
+  /** Full list of supported languages from CodeMirror */
+  languages: string[] = [];
+
+  /** Whether the current language supports Prettier formatting */
+  canFormat = false;
+
+  /** Formatting in progress flag */
+  isFormatting = false;
+
+  /** Status message after formatting */
+  formatStatus: string | null = null;
 
   constructor() {
+    // Build sorted language list from CM6's language-data
+    this.languages = this.cmService.getLanguageNames();
+
     this.settingsService.settings$.subscribe(s => {
-      this.theme = s.theme;
-      this.fontFamily = s.fontFamily;
-      this.fontSize = s.fontSize;
       this.syntaxLanguage = s.syntaxLanguage;
       this.lineNumbers = s.lineNumbers;
       this.wordWrap = s.wordWrap;
+      this.updateCanFormat();
     });
   }
 
-  get isDarkMode(): boolean {
-    return this.theme === 'dark';
+  onLanguageChange(): void {
+    this.updateCanFormat();
+    this.cmService.setLanguage(this.syntaxLanguage);
   }
 
-  set isDarkMode(val: boolean) {
-    this.theme = val ? 'dark' : 'light';
+  private updateCanFormat(): void {
+    this.canFormat = this.formatterService.isFormattingSupported(this.syntaxLanguage);
+  }
+
+  async formatCode(): Promise<void> {
+    this.isFormatting = true;
+    this.formatStatus = null;
+
+    try {
+      const currentCode = this.cmService.getContent();
+      if (!currentCode.trim()) {
+        this.formatStatus = 'Nothing to format';
+        this.isFormatting = false;
+        return;
+      }
+
+      const formatted = await this.formatterService.formatCode(currentCode, this.syntaxLanguage);
+
+      if (formatted !== currentCode) {
+        this.cmService.replaceContent(formatted);
+        this.formatStatus = '✓ Formatted successfully';
+      } else {
+        this.formatStatus = '✓ Already formatted';
+      }
+    } catch {
+      this.formatStatus = '✗ Formatting failed';
+    }
+
+    this.isFormatting = false;
+
+    // Clear status after 3 seconds
+    setTimeout(() => {
+      this.formatStatus = null;
+    }, 3000);
   }
 
   save(): void {
     this.settingsService.updateSettings({
-      theme: this.theme,
-      fontFamily: this.fontFamily,
-      fontSize: this.fontSize,
       syntaxLanguage: this.syntaxLanguage,
       lineNumbers: this.lineNumbers,
       wordWrap: this.wordWrap,

@@ -1,40 +1,53 @@
-import { Component, inject, ChangeDetectorRef, OnInit, OnDestroy } from '@angular/core';
+import {
+  Component,
+  inject,
+  ChangeDetectorRef,
+  OnInit,
+  OnDestroy,
+  AfterViewInit,
+  ElementRef,
+  ViewChild,
+} from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { AsyncPipe } from '@angular/common';
-import { EditorSettingsService } from '../../services/editor-settings.service';
+import { EditorSettingsService, EditorSettings } from '../../services/editor-settings.service';
 import { WebSocketService, MSG_TYPE_CHANGE, MSG_TYPE_SNAPSHOT } from '../../services/websocket.service';
 import { AutomergeService } from '../../services/automerge.service';
+import { CodeMirrorService } from '../../services/codemirror.service';
 import { Subscription } from 'rxjs';
+import { ViewUpdate } from '@codemirror/view';
 
 @Component({
   selector: 'app-editor',
   standalone: true,
-  imports: [AsyncPipe],
+  imports: [],
   templateUrl: './editor.component.html',
   styleUrls: ['./editor.component.scss'],
 })
-export class EditorComponent implements OnInit, OnDestroy {
+export class EditorComponent implements OnInit, AfterViewInit, OnDestroy {
+  @ViewChild('editorHost', { static: true }) editorHostRef!: ElementRef<HTMLDivElement>;
+
   settingsService = inject(EditorSettingsService);
-  settings$ = this.settingsService.settings$;
 
   private wsService = inject(WebSocketService);
   private amService = inject(AutomergeService);
+  private cmService = inject(CodeMirrorService);
   private route = inject(ActivatedRoute);
   private cdr = inject(ChangeDetectorRef);
   private messageSub!: Subscription;
+  private settingsSub!: Subscription;
   private snapshotInterval: ReturnType<typeof setInterval> | null = null;
-
-  /** The live document content bound to the textarea */
-  content = '';
-
-  /** Track line count for the gutter */
-  lineCount = 1;
 
   /** Whether the initial document state has been received */
   private initialized = false;
 
   /** Previous text value for computing diffs */
   private previousText = '';
+
+  /** Flag to suppress CM change events when applying remote CRDT updates */
+  private suppressChangeEvents = false;
+
+  /** Track the last applied settings to only reconfigure what changed */
+  private lastSettings: EditorSettings | null = null;
 
   ngOnInit(): void {
     // Read the document ID from the URL (e.g. /rdg → "rdg")
@@ -54,6 +67,84 @@ export class EditorComponent implements OnInit, OnDestroy {
         this.wsService.send(this.amService.getSnapshot());
       }
     }, 5000);
+  }
+
+  ngAfterViewInit(): void {
+    const settings = this.settingsService.currentSettings;
+
+    // Create the CodeMirror editor
+    this.cmService.createEditor(this.editorHostRef.nativeElement, {
+      initialContent: '',
+      theme: settings.theme,
+      fontSize: settings.fontSize,
+      lineNumbers: settings.lineNumbers,
+      wordWrap: settings.wordWrap,
+      syntaxLanguage: settings.syntaxLanguage,
+      onContentChange: (update: ViewUpdate) => this.onCmContentChange(update),
+    });
+
+    this.lastSettings = { ...settings };
+
+    // Subscribe to settings changes to reactively update CM
+    this.settingsSub = this.settingsService.settings$.subscribe((s) => {
+      this.applySettingsDiff(s);
+    });
+  }
+
+  /**
+   * Apply only the settings that actually changed to avoid unnecessary reconfiguration.
+   */
+  private applySettingsDiff(s: EditorSettings): void {
+    const prev = this.lastSettings;
+
+    if (!prev || prev.theme !== s.theme) {
+      this.cmService.setTheme(s.theme);
+    }
+    if (!prev || prev.fontSize !== s.fontSize) {
+      this.cmService.setFontSize(s.fontSize);
+    }
+    if (!prev || prev.lineNumbers !== s.lineNumbers) {
+      this.cmService.setLineNumbers(s.lineNumbers);
+    }
+    if (!prev || prev.wordWrap !== s.wordWrap) {
+      this.cmService.setWordWrap(s.wordWrap);
+    }
+    if (!prev || prev.syntaxLanguage !== s.syntaxLanguage) {
+      this.cmService.setLanguage(s.syntaxLanguage);
+    }
+
+    this.lastSettings = { ...s };
+  }
+
+  /**
+   * Handle CodeMirror content changes — compute diff and send to CRDT.
+   */
+  private onCmContentChange(update: ViewUpdate): void {
+    if (this.suppressChangeEvents) return;
+
+    const newText = update.state.doc.toString();
+
+    // If not initialized yet, create the doc first
+    if (!this.initialized) {
+      this.amService.initEmpty();
+      this.initialized = true;
+    }
+
+    // Compute the diff between previous text and new text
+    const diff = this.computeDiff(this.previousText, newText);
+
+    if (diff.deleteCount > 0 || diff.insertText.length > 0) {
+      // Apply the diff to the Automerge CRDT and get the binary change
+      const changeMsg = this.amService.applyLocalEdit(diff.pos, diff.deleteCount, diff.insertText);
+
+      if (changeMsg) {
+        // Send the change to the server (which relays to other clients)
+        this.wsService.send(changeMsg);
+      }
+    }
+
+    // Update local tracking state
+    this.previousText = this.amService.getText();
   }
 
   /**
@@ -88,60 +179,22 @@ export class EditorComponent implements OnInit, OnDestroy {
         return;
     }
 
-    // Update the textarea with the CRDT's current text
+    // Update the CodeMirror editor with the CRDT's current text
     this.updateContentFromCRDT();
   }
 
   /**
-   * Sync the textarea content from the Automerge document.
-   * Preserves cursor position as best as possible.
+   * Sync the CodeMirror content from the Automerge document.
+   * Suppresses change events to avoid feedback loops.
    */
   private updateContentFromCRDT(): void {
-    const textarea = document.querySelector('.editor-textarea') as HTMLTextAreaElement | null;
-    const cursorPos = textarea?.selectionStart ?? 0;
+    const newContent = this.amService.getText();
 
-    this.content = this.amService.getText();
-    this.previousText = this.content;
-    this.lineCount = this.content.split('\n').length;
+    this.suppressChangeEvents = true;
+    this.cmService.replaceContent(newContent);
+    this.suppressChangeEvents = false;
 
-    // Force Angular to re-check and update the DOM immediately
-    this.cdr.detectChanges();
-
-    // Restore cursor position after DOM update
-    if (textarea) {
-      const newPos = Math.min(cursorPos, this.content.length);
-      textarea.setSelectionRange(newPos, newPos);
-    }
-  }
-
-  /** Called every time the user types in the textarea */
-  onTextInput(event: Event): void {
-    const textarea = event.target as HTMLTextAreaElement;
-    const newText = textarea.value;
-
-    // If not initialized yet, create the doc first
-    if (!this.initialized) {
-      this.amService.initEmpty();
-      this.initialized = true;
-    }
-
-    // Compute the diff between previous text and new text
-    const diff = this.computeDiff(this.previousText, newText);
-
-    if (diff.deleteCount > 0 || diff.insertText.length > 0) {
-      // Apply the diff to the Automerge CRDT and get the binary change
-      const changeMsg = this.amService.applyLocalEdit(diff.pos, diff.deleteCount, diff.insertText);
-
-      if (changeMsg) {
-        // Send the change to the server (which relays to other clients)
-        this.wsService.send(changeMsg);
-      }
-    }
-
-    // Update local tracking state
-    this.content = this.amService.getText();
-    this.previousText = this.content;
-    this.lineCount = this.content.split('\n').length;
+    this.previousText = newContent;
   }
 
   /**
@@ -151,7 +204,7 @@ export class EditorComponent implements OnInit, OnDestroy {
    */
   private computeDiff(
     oldText: string,
-    newText: string
+    newText: string,
   ): { pos: number; deleteCount: number; insertText: string } {
     // Find common prefix length
     let prefixLen = 0;
@@ -189,10 +242,13 @@ export class EditorComponent implements OnInit, OnDestroy {
     }
 
     this.messageSub?.unsubscribe();
+    this.settingsSub?.unsubscribe();
     this.wsService.disconnect();
 
     if (this.snapshotInterval) {
       clearInterval(this.snapshotInterval);
     }
+
+    this.cmService.destroy();
   }
 }
