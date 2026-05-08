@@ -25,5 +25,10 @@ func main() {
 	syncer.Start(api.Manager, pool)
 
 	fmt.Println("Server started")
-	http.ListenAndServe(":3000", r)
+	// http.ListenAndServe(":3000", r)
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "3000"
+	}
+	http.ListenAndServe("0.0.0.0:"+port, r)
 }

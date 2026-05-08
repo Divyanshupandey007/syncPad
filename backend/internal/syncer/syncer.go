@@ -10,13 +10,16 @@ import (
 
 func Start(manager *hub.Manager, pool *pgxpool.Pool) {
 	go func() {
-		ticker := time.NewTicker(5 * time.Second)
+		ticker := time.NewTicker(10 * time.Second)
 		for range ticker.C {
 			manager.RLock()
 			for _, room := range manager.Rooms {
-				room.RLock()
-				storage.SaveDocument(pool, room.ID, room.Doc)
-				room.RUnlock()
+				room.Lock()
+				if room.Dirty {
+					storage.SaveDocument(pool, room.ID, room.Doc)
+					room.Dirty = false
+				}
+				room.Unlock()
 			}
 			manager.RUnlock()
 		}
