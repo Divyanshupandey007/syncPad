@@ -1,4 +1,4 @@
 export const environment = {
     production: true,
-    wsUrl: "wss://.com/ws"
+    wsUrl: "wss://syncpad-backend-7041.onrender.com/ws"
 }
