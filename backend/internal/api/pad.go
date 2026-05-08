@@ -1,6 +1,7 @@
 package api
 
 import (
+	"encoding/base64"
 	"log"
 	"net/http"
 	"syncPad/internal/hub"
@@ -16,6 +17,13 @@ var wsupgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
 		return true
 	},
+}
+
+var emptyDocBase64 = "hW9Kg+Sk7+UAsAEBENQvzc3HIwBIeixLHRT1PQcBtkjQLOiRGxu3MBzcyyKIxG4qEAtMMOjuDIVImZUaZ+AGAQIDAhMCIwZAAlYCDAEEAgQRBBMHFQ4hAiMCNAJCBFYEVxSAAQJ/AH8BfxZ/zc/4zwZ/AH8HAAIUAAACFAIAAxMAAAJ+AAMSAX4EdGV4dAV0aXRsZQAUFgAWAQIUAgQUAQIAFBZVbnRpdGxlZCBEb2N1bWVudC5tZBYAAA=="
+var emptyDocBytes []byte
+
+func init() {
+	emptyDocBytes, _ = base64.StdEncoding.DecodeString(emptyDocBase64)
 }
 
 var Manager = hub.NewManager()
@@ -37,7 +45,11 @@ func HandleWebSocket(w http.ResponseWriter, r *http.Request) {
 	room, exists := Manager.Rooms[docId]
 	if !exists {
 		room = hub.NewRoom(docId)
-		room.Doc = storage.LoadDocument(Pool, docId)
+		doc := storage.LoadDocument(Pool, docId)
+		if len(doc) == 0 {
+			doc = emptyDocBytes
+		}
+		room.Doc = doc
 		room.Rdb = RedisClient
 		Manager.Rooms[docId] = room
 		go room.Run()
