@@ -14,6 +14,7 @@ FROM alpine:latest
 WORKDIR /app
 COPY --from=build /app/syncpad .
 
-EXPOSE 3000
+ENV PORT=3000
+EXPOSE ${PORT}
 
 CMD ["./syncpad"]

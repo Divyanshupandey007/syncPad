@@ -1,5 +1,6 @@
 import { inject, Injectable, NgZone } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
+import { environment } from '../../environments/environment.prod';
 
 export type ConnectionStatus = 'connected' | 'disconnected' | 'connecting';
 
@@ -43,13 +44,13 @@ export class WebSocketService {
     // Nginx then proxies /ws/ to the Go backend.
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const host = window.location.host;
-    const wsUrl = `${protocol}//${host}/ws/${documentId}`;
+    // const wsUrl = `${protocol}//${host}/ws/${documentId}`;
 
     // Create WebSocket outside Angular's zone to avoid unnecessary
     // change detection on every internal WebSocket event.
     // We manually re-enter the zone only when we need Angular to update.
     this.ngZone.runOutsideAngular(() => {
-      this.ws = new WebSocket(wsUrl);
+      this.ws = new WebSocket(environment.wsUrl);
       // Receive binary data as ArrayBuffer (not Blob)
       this.ws.binaryType = 'arraybuffer';
 

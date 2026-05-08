@@ -22,6 +22,7 @@ type Client struct {
 type Room struct {
 	ID        string
 	Doc       []byte
+	Dirty     bool
 	Clients   map[*Client]bool
 	Broadcast chan BroadcastMsg
 	Rdb       *redis.Client
@@ -72,7 +73,8 @@ func (r *Room) Run() {
 
 		case 0x02: // Snapshot — store the binary (skip the type byte)
 			r.Lock()
-			r.Doc = msg.Data[1:] // Everything after the 0x02 byte
+			r.Doc = msg.Data[1:]
+			r.Dirty = true // Everything after the 0x02 byte
 			r.Unlock()
 		}
 	}
