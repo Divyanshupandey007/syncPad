@@ -50,7 +50,7 @@ export class WebSocketService {
     // change detection on every internal WebSocket event.
     // We manually re-enter the zone only when we need Angular to update.
     this.ngZone.runOutsideAngular(() => {
-      this.ws = new WebSocket(environment.wsUrl);
+      this.ws = new WebSocket(`${environment.wsUrl}/${documentId}`);
       // Receive binary data as ArrayBuffer (not Blob)
       this.ws.binaryType = 'arraybuffer';
 
