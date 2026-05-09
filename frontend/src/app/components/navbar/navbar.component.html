@@ -13,6 +13,41 @@
       spellcheck="false"
       id="input-doc-title"
     />
+
+    <div class="navbar__divider"></div>
+
+    <!-- Connection Status + Collaborator Count -->
+    <div class="navbar__presence">
+      <span class="navbar__dot-wrapper">
+        <span class="navbar__dot-ping"
+              [class.navbar__dot-ping--connected]="(status$ | async) === 'connected'"
+              [class.navbar__dot-ping--disconnected]="(status$ | async) === 'disconnected'">
+        </span>
+        <span class="navbar__dot"
+              [class.navbar__dot--connected]="(status$ | async) === 'connected'"
+              [class.navbar__dot--disconnected]="(status$ | async) === 'disconnected'">
+        </span>
+      </span>
+      @switch (status$ | async) {
+        @case ('connected') {
+          <span class="navbar__status-label">Connected</span>
+        }
+        @case ('connecting') {
+          <span class="navbar__status-label">Connecting…</span>
+        }
+        @case ('disconnected') {
+          <span class="navbar__status-label navbar__status-label--warn">Disconnected</span>
+        }
+      }
+
+      <div class="navbar__presence-sep"></div>
+
+      <!-- Collaborator count chip -->
+      <span class="navbar__collab-chip" title="Active collaborators">
+        <span class="material-symbols-outlined navbar__collab-icon">person</span>
+        <span class="navbar__collab-count">{{ collaboratorCount$ | async }}</span>
+      </span>
+    </div>
   </div>
 
   <div class="navbar__right">
@@ -37,8 +72,9 @@
     <button class="navbar__btn navbar__btn--text" (click)="copyLink()" id="btn-copy-link">
       Copy Link
     </button>
-    <button class="navbar__btn navbar__btn--primary" id="btn-share">
-      Share
+    <button class="navbar__btn navbar__btn--primary" (click)="downloadFile()" id="btn-download">
+      <span class="material-symbols-outlined navbar__btn-icon">download</span>
+      Download
     </button>
 
     <div class="navbar__divider"></div>

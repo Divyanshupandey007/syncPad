@@ -1,11 +1,12 @@
 .editor-main {
   flex: 1;
   width: 100%;
-  height: calc(100vh - 56px); /* Fill viewport below navbar */
-  padding: 20px;             /* Breathing room around the card */
+  margin-top: 56px;              /* Push below the fixed navbar */
+  height: calc(100vh - 56px);    /* Fill viewport below navbar */
+  padding: 20px;                 /* Breathing room around the card */
   display: flex;
   flex-direction: column;
-  overflow: hidden;           /* Pad itself never scrolls */
+  overflow: hidden;              /* Pad itself never scrolls */
 }
 
 .editor-card {

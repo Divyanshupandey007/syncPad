@@ -96,3 +96,18 @@ func (r *Room) ListenRedis() {
 		r.RUnlock()
 	}
 }
+
+// BroadcastPresence sends the current client count to all connected clients.
+// Message format: [0x03, count_byte]
+func (r *Room) BroadcastPresence() {
+	r.RLock()
+	count := len(r.Clients)
+	msg := []byte{0x03, byte(count)}
+	for client := range r.Clients {
+		select {
+		case client.Send <- msg:
+		default:
+		}
+	}
+	r.RUnlock()
+}

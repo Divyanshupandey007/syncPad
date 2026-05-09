@@ -1,12 +1,13 @@
 import { inject, Injectable, NgZone } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
-import { environment } from '../../environments/environment';
+
 
 export type ConnectionStatus = 'connected' | 'disconnected' | 'connecting';
 
 /** Message type byte constants matching the backend protocol */
 export const MSG_TYPE_CHANGE = 0x01;
 export const MSG_TYPE_SNAPSHOT = 0x02;
+export const MSG_TYPE_PRESENCE = 0x03;
 
 @Injectable({ providedIn: 'root' })
 export class WebSocketService {
@@ -19,6 +20,10 @@ export class WebSocketService {
   /** Tracks the current connection status */
   private statusSubject = new BehaviorSubject<ConnectionStatus>('disconnected');
   readonly status$ = this.statusSubject.asObservable();
+
+  /** Tracks the number of collaborators on the current document */
+  private collaboratorCountSubject = new BehaviorSubject<number>(1);
+  readonly collaboratorCount$ = this.collaboratorCountSubject.asObservable();
 
   /** The document ID we are currently connected to */
   private currentDocId: string | null = null;
@@ -39,18 +44,23 @@ export class WebSocketService {
     this.currentDocId = documentId;
     this.statusSubject.next('connecting');
 
-    // Dynamically build WebSocket URL from current browser location.
-    // In Docker (behind Nginx), this connects to the same host:port the page loaded from.
-    // Nginx then proxies /ws/ to the Go backend.
+    // Derive WebSocket URL from the browser's current location at runtime.
+    // This makes the SAME build work in every environment:
+    //   • Docker Compose: browser on localhost:80 → ws://localhost/ws/docId (nginx proxies to backend)
+    //   • Production:     browser on syncpad.com  → wss://syncpad.com/ws/docId
+    //   • ng serve:       browser on localhost:4200 → ws://localhost:3000/ws/docId (direct to Go backend)
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const host = window.location.host;
-    // const wsUrl = `${protocol}//${host}/ws/${documentId}`;
+    const isDevServer = host.includes(':4200');
+    const wsBase = isDevServer
+      ? `${protocol}//localhost:3000/ws`        // ng serve — connect directly to Go backend
+      : `${protocol}//${host}/ws`;              // Docker / production — nginx proxies /ws/
 
     // Create WebSocket outside Angular's zone to avoid unnecessary
     // change detection on every internal WebSocket event.
     // We manually re-enter the zone only when we need Angular to update.
     this.ngZone.runOutsideAngular(() => {
-      this.ws = new WebSocket(`${environment.wsUrl}/${documentId}`);
+      this.ws = new WebSocket(`${wsBase}/${documentId}`);
       // Receive binary data as ArrayBuffer (not Blob)
       this.ws.binaryType = 'arraybuffer';
 
@@ -62,6 +72,11 @@ export class WebSocketService {
       this.ws.onmessage = (event: MessageEvent) => {
         // Binary messages arrive as ArrayBuffer
         const data = new Uint8Array(event.data as ArrayBuffer);
+        // Intercept presence messages (type 0x03) — don't forward to CRDT
+        if (data.length >= 2 && data[0] === MSG_TYPE_PRESENCE) {
+          this.ngZone.run(() => this.collaboratorCountSubject.next(data[1]));
+          return;
+        }
         this.ngZone.run(() => this.incomingMessage$.next(data));
       };
 

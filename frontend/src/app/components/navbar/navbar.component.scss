@@ -70,6 +70,97 @@
     gap: 12px;
   }
 
+  /* ── Presence Indicator (connection + collaborator count) ── */
+  &__presence {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: rgba(42, 41, 51, 0.45);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(70, 69, 85, 0.35);
+    border-radius: 9999px;
+    padding: 4px 12px 4px 10px;
+    flex-shrink: 0;
+  }
+
+  &__dot-wrapper {
+    position: relative;
+    display: flex;
+    width: 8px;
+    height: 8px;
+  }
+
+  &__dot-ping {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background-color: var(--primary-fixed-dim);
+    opacity: 0.4;
+    animation: pulse-dot 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+
+    &--connected {
+      background-color: var(--primary-fixed-dim);
+    }
+    &--disconnected {
+      background-color: #f87171;
+      animation: none;
+    }
+  }
+
+  &__dot {
+    position: relative;
+    display: inline-flex;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--primary-fixed-dim);
+
+    &--connected {
+      background-color: var(--primary-fixed-dim);
+    }
+    &--disconnected {
+      background-color: #f87171;
+    }
+  }
+
+  &__status-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.2;
+    letter-spacing: 0.01em;
+    color: var(--on-surface-variant);
+
+    &--warn {
+      color: #f87171;
+    }
+  }
+
+  &__presence-sep {
+    width: 1px;
+    height: 12px;
+    background-color: rgba(70, 69, 85, 0.5);
+  }
+
+  &__collab-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+  }
+
+  &__collab-icon {
+    font-size: 14px !important;
+    color: var(--on-surface-variant);
+  }
+
+  &__collab-count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--on-surface-variant);
+  }
+
   /* ── Font Size Slider (compact inline) ───────────────── */
   &__font-size {
     display: flex;
@@ -173,6 +264,9 @@
     }
 
     &--primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
       background-color: var(--primary-container);
       color: #fff;
       padding: 6px 16px;
@@ -182,6 +276,10 @@
         filter: brightness(1.1);
       }
     }
+  }
+
+  &__btn-icon {
+    font-size: 18px !important;
   }
 
   &__icon-btn {
@@ -204,5 +302,13 @@
       color: var(--on-surface);
       background-color: var(--elevation-2);
     }
+  }
+}
+
+/* ── Light theme overrides for presence pill ─────────── */
+[data-theme="light"] {
+  .navbar__presence {
+    background-color: rgba(0, 0, 0, 0.04);
+    border-color: rgba(0, 0, 0, 0.08);
   }
 }

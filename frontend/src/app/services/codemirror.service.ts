@@ -29,6 +29,7 @@ import {
   history,
   historyKeymap,
   indentWithTab,
+  insertNewline,
 } from '@codemirror/commands';
 import {
   searchKeymap,
@@ -366,7 +367,10 @@ export class CodeMirrorService {
         indentUnit.of('  '),
 
         // — Keymaps —
+        // Override Enter to insert a plain newline (no auto-indent).
+        // Must come BEFORE defaultKeymap so it takes priority.
         keymap.of([
+          { key: 'Enter', run: insertNewline },
           ...closeBracketsKeymap,
           ...defaultKeymap,
           ...searchKeymap,
@@ -513,7 +517,7 @@ export class CodeMirrorService {
 
   private buildFontSizeTheme(px: number): Extension {
     return EditorView.theme({
-      '&': { fontSize: `${px}px` },
+      '.cm-content': { fontSize: `${px}px` },
       '.cm-gutters': { fontSize: `${Math.max(px - 1, 12)}px` },
     });
   }
