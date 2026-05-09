@@ -1,7 +1,8 @@
-// Local development environment — used by `ng serve` (default).
+// Local development environment — used by `ng serve` (default) and Docker Compose.
 // In production builds, Angular swaps this file with environment.prod.ts
 // via the fileReplacements configuration in angular.json.
 export const environment = {
   production: false,
-  wsUrl: 'ws://localhost:3000/ws'
+  // Empty = derive WebSocket URL from window.location (works for ng serve + Docker)
+  backendWsUrl: '',
 };
