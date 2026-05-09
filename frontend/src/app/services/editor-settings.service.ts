@@ -12,7 +12,7 @@ export interface EditorSettings {
 const DEFAULT_SETTINGS: EditorSettings = {
   theme: 'dark',
   fontSize: 15,
-  syntaxLanguage: 'JavaScript',
+  syntaxLanguage: 'Plain Text',
   lineNumbers: true,
   wordWrap: false,
 };

@@ -101,6 +101,7 @@ func HandleWebSocket(w http.ResponseWriter, r *http.Request) {
 	room.Lock()
 	room.Clients[client] = true
 	room.Unlock()
+	go room.BroadcastPresence()
 
 	room.RLock()
 	if len(room.Doc) != 0 {
@@ -122,6 +123,7 @@ func HandleWebSocket(w http.ResponseWriter, r *http.Request) {
 			room.Lock()
 			delete(room.Clients, client)
 			room.Unlock()
+			go room.BroadcastPresence()
 			break
 		}
 

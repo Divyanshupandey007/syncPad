@@ -1,7 +1,7 @@
 import { Component, HostListener, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { NavbarComponent } from './components/navbar/navbar.component';
-import { StatusBarComponent } from './components/status-bar/status-bar.component';
+
 import { HelpModalComponent } from './components/help-modal/help-modal.component';
 import { SettingsModalComponent } from './components/settings-modal/settings-modal.component';
 import { ModalService } from './services/modal.service';
@@ -12,7 +12,7 @@ import { ModalService } from './services/modal.service';
   imports: [
     RouterOutlet,
     NavbarComponent,
-    StatusBarComponent,
+
     HelpModalComponent,
     SettingsModalComponent,
   ],
