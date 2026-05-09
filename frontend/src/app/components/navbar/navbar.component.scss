@@ -17,6 +17,7 @@
     align-items: center;
     gap: 16px;
     min-width: 0; /* Allow shrink */
+    overflow: hidden;
   }
 
   &__brand {
@@ -39,7 +40,7 @@
     border-radius: 6px;
     padding: 4px 8px;
     outline: none;
-    min-width: 120px;
+    min-width: 80px;
     max-width: 300px;
     transition: all var(--transition-fast);
 
@@ -68,6 +69,7 @@
     display: flex;
     align-items: center;
     gap: 12px;
+    flex-shrink: 0;
   }
 
   /* ── Presence Indicator (connection + collaborator count) ── */
@@ -247,6 +249,7 @@
     cursor: pointer;
     border-radius: 6px;
     transition: all var(--transition-fast);
+    white-space: nowrap;
 
     &:active {
       transform: scale(0.95);
@@ -276,6 +279,11 @@
         filter: brightness(1.1);
       }
     }
+  }
+
+  /* Label text inside buttons — hidden on small screens */
+  &__btn-label {
+    display: inline;
   }
 
   &__btn-icon {
@@ -310,5 +318,153 @@
   .navbar__presence {
     background-color: rgba(0, 0, 0, 0.04);
     border-color: rgba(0, 0, 0, 0.08);
+  }
+}
+
+/* ================================================================
+   RESPONSIVE BREAKPOINTS
+   ================================================================ */
+
+/* ── Tablet (≤ 1024px) ──────────────────────────────────── */
+@media (max-width: 1024px) {
+  .navbar {
+    padding: 0 16px;
+
+    &__left {
+      gap: 10px;
+    }
+
+    &__right {
+      gap: 8px;
+    }
+
+    &__doc-title-input {
+      max-width: 180px;
+    }
+
+    &__font-size-slider {
+      width: 60px;
+    }
+
+    &__font-size-value {
+      display: none;
+    }
+
+    &__btn--text {
+      padding: 6px 8px;
+      font-size: 13px;
+    }
+
+    &__btn--primary {
+      padding: 6px 12px;
+      font-size: 13px;
+    }
+  }
+}
+
+/* ── Small Tablet / Large Phone (≤ 768px) ───────────────── */
+@media (max-width: 768px) {
+  .navbar {
+    padding: 0 12px;
+    gap: 8px;
+
+    &__left {
+      gap: 8px;
+    }
+
+    &__right {
+      gap: 6px;
+    }
+
+    &__brand {
+      font-size: 16px;
+    }
+
+    &__divider {
+      margin: 0 4px;
+    }
+
+    &__doc-title-input {
+      max-width: 130px;
+      min-width: 60px;
+      font-size: 13px;
+      padding: 3px 6px;
+    }
+
+    /* Hide text labels — just show dot + count */
+    &__status-label {
+      display: none;
+    }
+
+    &__presence-sep {
+      display: none;
+    }
+
+    &__presence {
+      padding: 4px 8px;
+      gap: 5px;
+    }
+
+    /* Hide font size slider on mobile — accessible via Settings */
+    &__font-size {
+      display: none;
+    }
+
+    /* Hide "Copy Link" text button — keep download icon */
+    &__btn--text {
+      display: none;
+    }
+
+    /* Download button — icon only */
+    &__btn--primary {
+      padding: 6px 10px;
+    }
+
+    &__btn-label {
+      display: none;
+    }
+  }
+}
+
+/* ── Phone (≤ 480px) ────────────────────────────────────── */
+@media (max-width: 480px) {
+  .navbar {
+    height: 48px;
+    padding: 0 10px;
+
+    &__brand {
+      font-size: 15px;
+    }
+
+    &__doc-title-input {
+      max-width: 100px;
+      min-width: 50px;
+      font-size: 12px;
+    }
+
+    /* Hide the divider between title and presence */
+    &__left > &__divider:nth-of-type(2) {
+      display: none;
+    }
+
+    &__right > &__divider {
+      display: none;
+    }
+
+    &__icon-btn {
+      padding: 4px;
+
+      .material-symbols-outlined {
+        font-size: 18px;
+      }
+    }
+
+    &__btn--primary {
+      padding: 5px 8px;
+
+      .navbar__btn-icon {
+        font-size: 16px !important;
+      }
+    }
   }
 }

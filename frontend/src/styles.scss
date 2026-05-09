@@ -163,6 +163,8 @@ html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+  -webkit-text-size-adjust: 100%;       /* Prevent iOS auto text-sizing */
+  touch-action: manipulation;            /* Disable double-tap zoom delay */
 }
 
 body {

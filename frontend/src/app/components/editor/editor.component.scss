@@ -74,3 +74,46 @@
 :host ::ng-deep .cm-activeLineGutter .cm-gutterElement {
   opacity: 1;
 }
+
+/* ================================================================
+   RESPONSIVE BREAKPOINTS
+   ================================================================ */
+
+/* ── Tablet (≤ 768px) ───────────────────────────────────── */
+@media (max-width: 768px) {
+  .editor-main {
+    padding: 12px;
+  }
+
+  .editor-card {
+    border-radius: 8px;
+  }
+
+  :host ::ng-deep .cm-lineNumbers .cm-gutterElement {
+    min-width: 24px;
+    padding: 0 4px;
+  }
+}
+
+/* ── Phone (≤ 480px) ────────────────────────────────────── */
+@media (max-width: 480px) {
+  .editor-main {
+    margin-top: 48px;              /* Match smaller navbar height */
+    height: calc(100vh - 48px);
+    padding: 6px;
+  }
+
+  .editor-card {
+    border-radius: 6px;
+  }
+
+  :host ::ng-deep .cm-gutters {
+    padding-left: 0;
+  }
+
+  :host ::ng-deep .cm-lineNumbers .cm-gutterElement {
+    min-width: 20px;
+    padding: 0 2px;
+    font-size: 10px;
+  }
+}
