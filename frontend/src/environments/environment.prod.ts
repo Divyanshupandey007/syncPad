@@ -2,5 +2,8 @@
 // during `ng build --configuration=production`.
 export const environment = {
   production: true,
-  wsUrl: 'wss://syncpad-backend-7041.onrender.com/ws'
+  // Your Render backend WebSocket URL.
+  // Used when frontend is hosted on a static CDN (Cloudflare Pages, Vercel, etc.)
+  // that cannot proxy WebSocket connections to the backend.
+  backendWsUrl: 'wss://syncpad-backend-7041.onrender.com/ws',
 };

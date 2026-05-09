@@ -1,6 +1,6 @@
 import { inject, Injectable, NgZone } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
-
+import { environment } from '../../environments/environment';
 
 export type ConnectionStatus = 'connected' | 'disconnected' | 'connecting';
 
@@ -44,17 +44,37 @@ export class WebSocketService {
     this.currentDocId = documentId;
     this.statusSubject.next('connecting');
 
-    // Derive WebSocket URL from the browser's current location at runtime.
-    // This makes the SAME build work in every environment:
-    //   • Docker Compose: browser on localhost:80 → ws://localhost/ws/docId (nginx proxies to backend)
-    //   • Production:     browser on syncpad.com  → wss://syncpad.com/ws/docId
-    //   • ng serve:       browser on localhost:4200 → ws://localhost:3000/ws/docId (direct to Go backend)
+    // Derive WebSocket URL based on the deployment environment:
+    //
+    //   1. ng serve (localhost:4200)
+    //      → connect directly to Go backend on localhost:3000
+    //
+    //   2. Docker Compose (localhost / localhost:80)
+    //      → nginx reverse-proxies /ws/ to the Go backend container
+    //      → derive URL from window.location (same-origin)
+    //
+    //   3. Production split-hosting (Cloudflare Pages + Render)
+    //      → static CDN can't proxy WebSockets
+    //      → use the explicit backend URL from environment.prod.ts
+    //
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const host = window.location.host;
-    const isDevServer = host.includes(':4200');
-    const wsBase = isDevServer
-      ? `${protocol}//localhost:3000/ws`        // ng serve — connect directly to Go backend
-      : `${protocol}//${host}/ws`;              // Docker / production — nginx proxies /ws/
+    const isLocal = host === 'localhost' || host.startsWith('localhost:') || host.startsWith('127.0.0.1');
+
+    let wsBase: string;
+    if (host.includes(':4200')) {
+      // ng serve dev server — connect directly to Go backend
+      wsBase = `${protocol}//localhost:3000/ws`;
+    } else if (isLocal) {
+      // Docker Compose — nginx proxies /ws/ to the backend container
+      wsBase = `${protocol}//${host}/ws`;
+    } else if (environment.backendWsUrl) {
+      // Production with separate backend domain (e.g. Cloudflare Pages → Render)
+      wsBase = environment.backendWsUrl;
+    } else {
+      // Fallback: same-origin (frontend + backend behind same reverse proxy)
+      wsBase = `${protocol}//${host}/ws`;
+    }
 
     // Create WebSocket outside Angular's zone to avoid unnecessary
     // change detection on every internal WebSocket event.
