@@ -2,21 +2,26 @@ package redisclient
 
 import (
 	"context"
-	"fmt"
+	"log"
 
 	"github.com/redis/go-redis/v9"
 )
 
+// Connect parses a Redis connection URL and returns a connected client.
+// Expects a full URL like "redis://localhost:6379" or "rediss://user:pass@host:port".
+// Fatally exits if the URL is invalid — the server cannot function without Redis.
 func Connect(redisURL string) *redis.Client {
-	// rdb := redis.NewClient(&redis.Options{
-	// 	Addr: redisURL,
-	// })
 	opt, err := redis.ParseURL(redisURL)
 	if err != nil {
-		fmt.Println("Error parsing Redis URL:", err)
-		return nil
+		log.Fatalf("[redis] FATAL: failed to parse REDIS_URL: %v", err)
 	}
 	rdb := redis.NewClient(opt)
+
+	// Verify connectivity at startup
+	if err := rdb.Ping(context.Background()).Err(); err != nil {
+		log.Fatalf("[redis] FATAL: cannot reach Redis at %s: %v", redisURL, err)
+	}
+	log.Printf("[redis] Connected to Redis")
 	return rdb
 }
 

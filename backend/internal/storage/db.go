@@ -2,31 +2,44 @@ package storage
 
 import (
 	"context"
-	"fmt"
+	"log"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
+// Connect creates a PostgreSQL connection pool.
+// Fatally exits if the connection fails — the server cannot function without a database.
 func Connect(databaseURL string) *pgxpool.Pool {
 	pool, err := pgxpool.New(context.Background(), databaseURL)
 	if err != nil {
-		fmt.Println("Error connecting database:", err)
-		return nil
+		log.Fatalf("[db] FATAL: failed to connect to database: %v", err)
 	}
+
+	// Verify connectivity at startup
+	if err := pool.Ping(context.Background()); err != nil {
+		log.Fatalf("[db] FATAL: cannot reach database: %v", err)
+	}
+	log.Printf("[db] Connected to PostgreSQL")
 	return pool
 }
 
 func CreateTable(pool *pgxpool.Pool) {
-	pool.Exec(context.Background(), `CREATE TABLE IF NOT EXISTS documents (
+	_, err := pool.Exec(context.Background(), `CREATE TABLE IF NOT EXISTS documents (
     id         TEXT PRIMARY KEY,
     content    BYTEA NOT NULL,
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 )`)
+	if err != nil {
+		log.Printf("[db] WARNING: failed to create documents table: %v", err)
+	}
 }
 
 func SaveDocument(pool *pgxpool.Pool, docId string, content []byte) {
-	pool.Exec(context.Background(), `INSERT INTO documents (id,content,updated_at)
+	_, err := pool.Exec(context.Background(), `INSERT INTO documents (id,content,updated_at)
 	VALUES ($1,$2,NOW()) ON CONFLICT (id) DO UPDATE SET content=$2,updated_at=NOW()`, docId, content)
+	if err != nil {
+		log.Printf("[db] WARNING: failed to save document %s: %v", docId, err)
+	}
 }
 
 func LoadDocument(pool *pgxpool.Pool, docId string) []byte {

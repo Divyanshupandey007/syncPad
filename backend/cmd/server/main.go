@@ -1,10 +1,10 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"net/http"
-	"os"
 	"syncPad/internal/api"
+	"syncPad/internal/config"
 	"syncPad/internal/redisclient"
 	"syncPad/internal/storage"
 	"syncPad/internal/syncer"
@@ -13,22 +13,39 @@ import (
 )
 
 func main() {
-	r := chi.NewRouter()
-	r.Get("/ws/{documentId}", api.HandleWebSocket)
+	// ── Load configuration ──────────────────────────────────────────
+	cfg := config.Load()
 
-	pool := storage.Connect(os.Getenv("DATABASE_URL"))
+	// ── Database ────────────────────────────────────────────────────
+	pool := storage.Connect(cfg.DatabaseURL)
 	storage.CreateTable(pool)
 	api.Pool = pool
 
-	rdb := redisclient.Connect(os.Getenv("REDIS_URL"))
+	// ── Redis ───────────────────────────────────────────────────────
+	rdb := redisclient.Connect(cfg.RedisURL)
 	api.RedisClient = rdb
+
+	// ── WebSocket origin policy ─────────────────────────────────────
+	api.InitOriginChecker(cfg.AllowedOrigins, cfg.Environment)
+
+	// ── Background syncer (flushes dirty docs to PostgreSQL) ────────
 	syncer.Start(api.Manager, pool)
 
-	fmt.Println("Server started")
-	// http.ListenAndServe(":3000", r)
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "3000"
+	// ── HTTP routes ─────────────────────────────────────────────────
+	r := chi.NewRouter()
+
+	// Health check endpoint for Render / Docker / load balancers
+	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("ok"))
+	})
+
+	r.Get("/ws/{documentId}", api.HandleWebSocket)
+
+	// ── Start server ────────────────────────────────────────────────
+	addr := "0.0.0.0:" + cfg.Port
+	log.Printf("[server] SyncPad backend starting on %s (env=%s)", addr, cfg.Environment)
+	if err := http.ListenAndServe(addr, r); err != nil {
+		log.Fatalf("[server] FATAL: %v", err)
 	}
-	http.ListenAndServe("0.0.0.0:"+port, r)
 }

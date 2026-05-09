@@ -1,36 +1,54 @@
-# Root docker-compose.yml — orchestrates the full SyncPad stack.
-# Run from project root:  docker compose up --build
+# ┌─────────────────────────────────────────────────────────────────┐
+# │  SyncPad — Docker Compose (Local Development)                  │
+# │  Run from project root:  docker compose up --build             │
+# │  Requires:  .env file (copy from .env.example)                 │
+# └─────────────────────────────────────────────────────────────────┘
 
 services:
-  # ─── Infrastructure ───────────────────────────
+  # ─── Infrastructure ───────────────────────────────────
   db:
     image: postgres:16
     environment:
-      POSTGRES_USER: syncpad
-      POSTGRES_DB: syncpad
-      POSTGRES_PASSWORD: syncpad123
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   redis:
     image: redis:8
     ports:
       - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
-  # ─── Application ──────────────────────────────
+  # ─── Application ──────────────────────────────────────
   backend:
     build: ./backend
     ports:
-      - "3000:3000"
+      - "${SERVER_PORT:-3000}:${SERVER_PORT:-3000}"
     environment:
-      # Use service names (db, redis) as hostnames — Docker networking
-      DATABASE_URL: postgres://syncpad:syncpad123@db:5432/syncpad?sslmode=disable
-      REDIS_URL: redis:6379
+      DATABASE_URL: ${DATABASE_URL}
+      REDIS_URL: ${REDIS_URL}
+      SERVER_PORT: ${SERVER_PORT:-3000}
+      APP_ENV: ${APP_ENV:-development}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:80,http://localhost:4200}
     depends_on:
-      - db
-      - redis
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
 
   frontend:
     build: ./frontend
