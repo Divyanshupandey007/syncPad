@@ -4,13 +4,22 @@ import (
 	"context"
 	"log"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 // Connect creates a PostgreSQL connection pool.
 // Fatally exits if the connection fails — the server cannot function without a database.
 func Connect(databaseURL string) *pgxpool.Pool {
-	pool, err := pgxpool.New(context.Background(), databaseURL)
+	config, err := pgxpool.ParseConfig(databaseURL)
+	if err != nil {
+		log.Fatalf("[db] FATAL: failed to parse database config: %v", err)
+	}
+
+	// Disable named prepared statements for compatibility with PgBouncer (e.g. on Render)
+	config.ConnConfig.DefaultQueryExecMode = pgx.QueryExecModeExec
+
+	pool, err := pgxpool.NewWithConfig(context.Background(), config)
 	if err != nil {
 		log.Fatalf("[db] FATAL: failed to connect to database: %v", err)
 	}
