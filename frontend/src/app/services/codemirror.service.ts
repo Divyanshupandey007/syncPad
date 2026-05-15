@@ -44,9 +44,6 @@ import {
 import { lintKeymap } from '@codemirror/lint';
 import { tags as t } from '@lezer/highlight';
 
-/* ═══════════════════════════════════════════════════════════════
-   SyncPad Dark Theme — mapped to CSS variables
-   ═══════════════════════════════════════════════════════════════ */
 const syncPadDarkTheme = EditorView.theme(
   {
     '&': {
@@ -177,9 +174,6 @@ const syncPadDarkHighlight = HighlightStyle.define([
   { tag: t.invalid, color: '#ff6b6b', backgroundColor: 'rgba(255,107,107,0.1)' },
 ]);
 
-/* ═══════════════════════════════════════════════════════════════
-   SyncPad Light Theme
-   ═══════════════════════════════════════════════════════════════ */
 const syncPadLightTheme = EditorView.theme(
   {
     '&': {
@@ -302,9 +296,7 @@ const syncPadLightHighlight = HighlightStyle.define([
   { tag: t.invalid, color: '#dc2626', backgroundColor: 'rgba(220,38,38,0.08)' },
 ]);
 
-/* ═══════════════════════════════════════════════════════════════
-   Service
-   ═══════════════════════════════════════════════════════════════ */
+
 
 export interface CodeMirrorConfig {
   initialContent: string;
@@ -320,7 +312,7 @@ export interface CodeMirrorConfig {
 export class CodeMirrorService {
   private view: EditorView | null = null;
 
-  /* Compartments allow dynamic reconfiguration */
+
   private languageComp = new Compartment();
   private themeComp = new Compartment();
   private gutterComp = new Compartment();
@@ -328,10 +320,8 @@ export class CodeMirrorService {
   private fontSizeComp = new Compartment();
   private updateListenerComp = new Compartment();
 
-  /** The full list of supported language descriptions from CM6 */
   readonly supportedLanguages = languages;
 
-  /** Build sorted, unique display names for the settings UI */
   getLanguageNames(): string[] {
     const names = new Set<string>();
     for (const lang of languages) {
@@ -340,16 +330,13 @@ export class CodeMirrorService {
     return Array.from(names).sort((a, b) => a.localeCompare(b));
   }
 
-  /**
-   * Create a CodeMirror 6 editor inside the given container element.
-   */
   createEditor(container: HTMLElement, config: CodeMirrorConfig): void {
     this.destroy(); // Clean up any previous instance
 
     const state = EditorState.create({
       doc: config.initialContent,
       extensions: [
-        // — Core editing —
+
         highlightActiveLineGutter(),
         highlightSpecialChars(),
         history(),
@@ -366,9 +353,7 @@ export class CodeMirrorService {
         highlightSelectionMatches(),
         indentUnit.of('  '),
 
-        // — Keymaps —
-        // Override Enter to insert a plain newline (no auto-indent).
-        // Must come BEFORE defaultKeymap so it takes priority.
+        // Override Enter for plain newline (must precede defaultKeymap)
         keymap.of([
           { key: 'Enter', run: insertNewline },
           ...closeBracketsKeymap,
@@ -381,7 +366,7 @@ export class CodeMirrorService {
           indentWithTab,
         ]),
 
-        // — Dynamic compartments —
+
         this.themeComp.of(this.buildThemeExtension(config.theme)),
         this.languageComp.of([]), // Loaded asynchronously below
         this.gutterComp.of(
@@ -390,7 +375,8 @@ export class CodeMirrorService {
         this.wrapComp.of(config.wordWrap ? EditorView.lineWrapping : []),
         this.fontSizeComp.of(this.buildFontSizeTheme(config.fontSize)),
 
-        // — Update listener —
+        EditorView.contentAttributes.of({ 'aria-label': 'Code editor' }),
+
         this.updateListenerComp.of(
           EditorView.updateListener.of((update) => {
             if (update.docChanged) {
@@ -402,12 +388,9 @@ export class CodeMirrorService {
     });
 
     this.view = new EditorView({ state, parent: container });
-
-    // Load the language asynchronously
     this.setLanguage(config.syntaxLanguage);
   }
 
-  /** Dynamically switch syntax language */
   async setLanguage(languageName: string): Promise<void> {
     if (!this.view) return;
 
@@ -415,7 +398,7 @@ export class CodeMirrorService {
       (l) => l.name.toLowerCase() === languageName.toLowerCase(),
     );
     if (!langDesc) {
-      // Fallback: clear the language extension
+
       this.view.dispatch({
         effects: this.languageComp.reconfigure([]),
       });
@@ -428,7 +411,7 @@ export class CodeMirrorService {
     });
   }
 
-  /** Switch between dark and light theme */
+
   setTheme(theme: 'dark' | 'light'): void {
     if (!this.view) return;
     this.view.dispatch({
@@ -436,7 +419,7 @@ export class CodeMirrorService {
     });
   }
 
-  /** Update font size */
+
   setFontSize(px: number): void {
     if (!this.view) return;
     this.view.dispatch({
@@ -444,7 +427,7 @@ export class CodeMirrorService {
     });
   }
 
-  /** Toggle line numbers + fold gutter */
+
   setLineNumbers(show: boolean): void {
     if (!this.view) return;
     this.view.dispatch({
@@ -454,7 +437,7 @@ export class CodeMirrorService {
     });
   }
 
-  /** Toggle word wrap */
+
   setWordWrap(enabled: boolean): void {
     if (!this.view) return;
     this.view.dispatch({
@@ -464,15 +447,13 @@ export class CodeMirrorService {
     });
   }
 
-  /** Get the current document text */
+
   getContent(): string {
     return this.view?.state.doc.toString() ?? '';
   }
 
-  /**
-   * Replace the entire document content (e.g. on CRDT snapshot load).
-   * Tries to preserve cursor position.
-   */
+  /** Replace content, preserving cursor position */
+
   replaceContent(newText: string): void {
     if (!this.view) return;
 
@@ -493,12 +474,12 @@ export class CodeMirrorService {
     });
   }
 
-  /** Focus the editor */
+
   focus(): void {
     this.view?.focus();
   }
 
-  /** Clean up */
+
   destroy(): void {
     if (this.view) {
       this.view.destroy();
@@ -506,7 +487,7 @@ export class CodeMirrorService {
     }
   }
 
-  /* ── Private helpers ────────────────────────────────────── */
+
 
   private buildThemeExtension(theme: 'dark' | 'light'): Extension {
     if (theme === 'dark') {

@@ -25,7 +25,6 @@ export class EditorSettingsService {
   settings$ = this.settingsSubject.asObservable();
 
   constructor() {
-    // Apply theme on service init
     this.applyTheme(this.settingsSubject.value.theme);
   }
 
@@ -38,7 +37,6 @@ export class EditorSettingsService {
     this.settingsSubject.next(updated);
     this.saveSettings(updated);
 
-    // If theme changed, apply it immediately
     if (partial.theme) {
       this.applyTheme(partial.theme);
     }
@@ -50,7 +48,6 @@ export class EditorSettingsService {
     this.applyTheme(DEFAULT_SETTINGS.theme);
   }
 
-  /** Apply theme by setting data-theme attribute on <html> */
   private applyTheme(theme: 'dark' | 'light'): void {
     document.documentElement.setAttribute('data-theme', theme);
   }
