@@ -14,46 +14,32 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-// ── WebSocket upgrader ──────────────────────────────────────────────
-// The CheckOrigin function is set dynamically via InitOriginChecker().
 var wsupgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
-		// Default: reject all until InitOriginChecker() is called.
-		// This ensures the server never accidentally runs with an open policy.
-		return false
+		return false // locked until InitOriginChecker is called
 	},
 }
 
-// InitOriginChecker configures the WebSocket origin policy based on
-// the deployment environment and the ALLOWED_ORIGINS config.
-//
-//   - In development: all origins are allowed (for localhost convenience).
-//   - In production:  only origins in the whitelist are accepted.
+// InitOriginChecker sets the WebSocket CORS policy.
+// Dev mode allows all origins; production restricts to the whitelist.
 func InitOriginChecker(allowedOrigins []string, env string) {
 	if env != "production" {
-		// Development / Docker — accept everything
-		wsupgrader.CheckOrigin = func(r *http.Request) bool {
-			return true
-		}
-		log.Println("[api] WebSocket origin check: OPEN (development mode)")
+		wsupgrader.CheckOrigin = func(r *http.Request) bool { return true }
+		log.Println("[api] WebSocket origins: OPEN (dev)")
 		return
 	}
 
-	// Production — restrict to configured origins
 	allowed := make(map[string]bool, len(allowedOrigins))
 	for _, o := range allowedOrigins {
 		allowed[strings.TrimRight(o, "/")] = true
 	}
 	wsupgrader.CheckOrigin = func(r *http.Request) bool {
-		origin := r.Header.Get("Origin")
-		return allowed[strings.TrimRight(origin, "/")]
+		return allowed[strings.TrimRight(r.Header.Get("Origin"), "/")]
 	}
-	log.Printf("[api] WebSocket origin check: RESTRICTED to %v", allowedOrigins)
+	log.Printf("[api] WebSocket origins: %v", allowedOrigins)
 }
 
-// ── Deterministic empty Automerge snapshot ──────────────────────────
-// This ensures all clients that join a brand-new document share the
-// same CRDT root history, preventing divergent document states.
+// Deterministic empty Automerge doc — ensures new documents share CRDT root history
 var emptyDocBase64 = "hW9Kg+Sk7+UAsAEBENQvzc3HIwBIeixLHRT1PQcBtkjQLOiRGxu3MBzcyyKIxG4qEAtMMOjuDIVImZUaZ+AGAQIDAhMCIwZAAlYCDAEEAgQRBBMHFQ4hAiMCNAJCBFYEVxSAAQJ/AH8BfxZ/zc/4zwZ/AH8HAAIUAAACFAIAAxMAAAJ+AAMSAX4EdGV4dAV0aXRsZQAUFgAWAQIUAgQUAQIAFBZVbnRpdGxlZCBEb2N1bWVudC5tZBYAAA=="
 var emptyDocBytes []byte
 
@@ -61,16 +47,14 @@ func init() {
 	emptyDocBytes, _ = base64.StdEncoding.DecodeString(emptyDocBase64)
 }
 
-// ── Package-level state ─────────────────────────────────────────────
 var Manager = hub.NewManager()
 var Pool *pgxpool.Pool
 var RedisClient *redis.Client
 
-// HandleWebSocket upgrades the connection to a websocket for a pad
 func HandleWebSocket(w http.ResponseWriter, r *http.Request) {
 	conn, err := wsupgrader.Upgrade(w, r, nil)
 	if err != nil {
-		log.Println("[api] WebSocket upgrade failed:", err)
+		log.Println("[api] upgrade failed:", err)
 		return
 	}
 
@@ -103,9 +87,9 @@ func HandleWebSocket(w http.ResponseWriter, r *http.Request) {
 	room.Unlock()
 	go room.BroadcastPresence()
 
+	// Send current snapshot (type 0x02) to the new client
 	room.RLock()
 	if len(room.Doc) != 0 {
-		// Prepend 0x02 type byte so the frontend knows this is a full snapshot
 		snapshot := append([]byte{0x02}, room.Doc...)
 		conn.WriteMessage(websocket.BinaryMessage, snapshot)
 	}
@@ -126,7 +110,6 @@ func HandleWebSocket(w http.ResponseWriter, r *http.Request) {
 			go room.BroadcastPresence()
 			break
 		}
-
 		room.Broadcast <- hub.BroadcastMsg{Data: message, Sender: client}
 	}
 }

@@ -1,10 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { CodeMirrorService } from './codemirror.service';
 
-/**
- * Maps SyncPad language names → Prettier parser names.
- * Only languages that Prettier supports are listed here.
- */
 const PRETTIER_PARSER_MAP: Record<string, { parser: string; plugins: string[] }> = {
   'javascript':  { parser: 'babel',      plugins: ['babel'] },
   'jsx':         { parser: 'babel',      plugins: ['babel'] },
@@ -21,10 +17,6 @@ const PRETTIER_PARSER_MAP: Record<string, { parser: string; plugins: string[] }>
   'xml':         { parser: 'xml',        plugins: ['xml'] },
 };
 
-/**
- * Languages that use C-style brace syntax and can be formatted
- * with the built-in brace-based formatter.
- */
 const BRACE_STYLE_LANGUAGES = new Set([
   'java', 'c', 'c++', 'objective-c', 'objective-c++',
   'c#', 'kotlin', 'swift', 'dart', 'scala',
@@ -38,13 +30,9 @@ const BRACE_STYLE_LANGUAGES = new Set([
   'protobuf',
 ]);
 
-/** Lazily loaded Prettier modules */
 let prettierCore: any = null;
 const loadedPlugins: Record<string, any> = {};
 
-/**
- * Lazily load the Prettier core (ESM).
- */
 async function loadPrettierCore(): Promise<any> {
   if (!prettierCore) {
     prettierCore = await import('prettier/standalone');
@@ -52,9 +40,6 @@ async function loadPrettierCore(): Promise<any> {
   return prettierCore;
 }
 
-/**
- * Lazily load a Prettier plugin by key.
- */
 async function loadPrettierPlugin(pluginKey: string): Promise<any> {
   if (loadedPlugins[pluginKey]) return loadedPlugins[pluginKey];
 
@@ -62,13 +47,11 @@ async function loadPrettierPlugin(pluginKey: string): Promise<any> {
   switch (pluginKey) {
     case 'babel':
       mod = await import('prettier/plugins/babel');
-      // babel also needs estree
       const estree = await import('prettier/plugins/estree');
       loadedPlugins['estree'] = estree.default ?? estree;
       break;
     case 'typescript':
       mod = await import('prettier/plugins/typescript');
-      // typescript also needs estree
       if (!loadedPlugins['estree']) {
         const es = await import('prettier/plugins/estree');
         loadedPlugins['estree'] = es.default ?? es;
@@ -100,35 +83,22 @@ async function loadPrettierPlugin(pluginKey: string): Promise<any> {
   return loadedPlugins[pluginKey];
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   Built-in Brace-based Code Formatter
-   Handles Java, C, C++, C#, Go, Rust, Kotlin, Swift, etc.
-   ═══════════════════════════════════════════════════════════════ */
+// --- Built-in brace-based formatter for C-style languages ---
 
-/**
- * Format C-style code by properly handling braces, semicolons,
- * and indentation. This provides clean, readable output for
- * languages that Prettier doesn't support.
- */
 function formatBraceStyle(code: string, tabWidth: number = 2): string {
   const indent = ' '.repeat(tabWidth);
-
-  // Step 1: Normalize whitespace — collapse runs of spaces/tabs to single space
-  // but preserve string literals and comments
   const tokens = tokenize(code);
 
-  // Step 2: Rebuild with proper formatting
   let result = '';
   let indentLevel = 0;
-  let needsNewline = true; // Start at beginning of line
+  let needsNewline = true;
   let lastNonWhitespaceChar = '';
-  let inForParens = 0; // Track parentheses depth inside for(;;) to avoid breaking on ;
+  let inForParens = 0;
 
   for (let i = 0; i < tokens.length; i++) {
     const token = tokens[i];
 
     if (token.type === 'string' || token.type === 'comment') {
-      // Preserve strings and comments verbatim
       if (needsNewline) {
         result += indent.repeat(indentLevel);
         needsNewline = false;
@@ -141,14 +111,11 @@ function formatBraceStyle(code: string, tabWidth: number = 2): string {
       continue;
     }
 
-    // Process code characters
     const chars = token.value;
     for (let j = 0; j < chars.length; j++) {
       const ch = chars[j];
 
-      // Skip existing whitespace/newlines — we regenerate them
       if (ch === ' ' || ch === '\t' || ch === '\r' || ch === '\n') {
-        // Add a single space if we need separation between tokens
         if (!needsNewline && result.length > 0 && !result.endsWith(' ') && !result.endsWith('\n')) {
           const nextChar = findNextNonWhitespace(chars, j + 1, tokens, i);
           if (nextChar && nextChar !== ';' && nextChar !== ',' && nextChar !== ')' && nextChar !== '}'
@@ -159,7 +126,7 @@ function formatBraceStyle(code: string, tabWidth: number = 2): string {
         continue;
       }
 
-      // Track 'for' parentheses to avoid line-breaking on semicolons inside for(;;)
+      // Track for() parentheses to avoid breaking on internal semicolons
       if (ch === '(') {
         if (lastTokenWord(result) === 'for') {
           inForParens = 1;
@@ -170,9 +137,7 @@ function formatBraceStyle(code: string, tabWidth: number = 2): string {
         inForParens--;
       }
 
-      // Opening brace
       if (ch === '{') {
-        // Ensure space before opening brace
         if (!needsNewline && result.length > 0 && !result.endsWith(' ') && !result.endsWith('\n')) {
           result += ' ';
         }
@@ -187,17 +152,14 @@ function formatBraceStyle(code: string, tabWidth: number = 2): string {
         continue;
       }
 
-      // Closing brace
       if (ch === '}') {
         indentLevel = Math.max(0, indentLevel - 1);
-        // Trim trailing whitespace on current line
         result = result.replace(/[ \t]+$/, '');
         if (!needsNewline) {
           result += '\n';
         }
         result += indent.repeat(indentLevel) + '}';
 
-        // Check if next non-whitespace is 'else', 'catch', 'finally', etc.
         const nextWord = peekNextWord(chars, j + 1, tokens, i);
         if (nextWord === 'else' || nextWord === 'catch' || nextWord === 'finally'
             || nextWord === 'while') {
@@ -211,7 +173,6 @@ function formatBraceStyle(code: string, tabWidth: number = 2): string {
         continue;
       }
 
-      // Semicolon
       if (ch === ';' && inForParens === 0) {
         if (needsNewline) {
           result += indent.repeat(indentLevel);
@@ -223,7 +184,6 @@ function formatBraceStyle(code: string, tabWidth: number = 2): string {
         continue;
       }
 
-      // Regular character
       if (needsNewline) {
         result += indent.repeat(indentLevel);
         needsNewline = false;
@@ -233,7 +193,6 @@ function formatBraceStyle(code: string, tabWidth: number = 2): string {
     }
   }
 
-  // Clean up: remove excessive blank lines, trim trailing whitespace
   return result
     .split('\n')
     .map(line => line.trimEnd())
@@ -242,16 +201,12 @@ function formatBraceStyle(code: string, tabWidth: number = 2): string {
     .trim() + '\n';
 }
 
-/** Token types for the simple tokenizer */
 interface Token {
   type: 'code' | 'string' | 'comment';
   value: string;
 }
 
-/**
- * Simple tokenizer that separates code, string literals, and comments.
- * This ensures we don't mess up formatting inside strings or comments.
- */
+/** Tokenize code into code, string, and comment segments */
 function tokenize(code: string): Token[] {
   const tokens: Token[] = [];
   let i = 0;
@@ -268,7 +223,6 @@ function tokenize(code: string): Token[] {
     const ch = code[i];
     const next = i + 1 < code.length ? code[i + 1] : '';
 
-    // Single-line comment
     if (ch === '/' && next === '/') {
       flushCode();
       let comment = '';
@@ -280,7 +234,6 @@ function tokenize(code: string): Token[] {
       continue;
     }
 
-    // Multi-line comment
     if (ch === '/' && next === '*') {
       flushCode();
       let comment = '/*';
@@ -298,7 +251,6 @@ function tokenize(code: string): Token[] {
       continue;
     }
 
-    // String literal (double quote)
     if (ch === '"') {
       flushCode();
       let str = '"';
@@ -317,7 +269,6 @@ function tokenize(code: string): Token[] {
       continue;
     }
 
-    // String literal (single quote)
     if (ch === "'") {
       flushCode();
       let str = "'";
@@ -336,7 +287,6 @@ function tokenize(code: string): Token[] {
       continue;
     }
 
-    // Backtick template literal
     if (ch === '`') {
       flushCode();
       let str = '`';
@@ -363,16 +313,11 @@ function tokenize(code: string): Token[] {
   return tokens;
 }
 
-/**
- * Look ahead for the next non-whitespace character in the remaining code.
- */
 function findNextNonWhitespace(currentChars: string, startJ: number, tokens: Token[], tokenIdx: number): string | null {
-  // Check rest of current token
   for (let j = startJ; j < currentChars.length; j++) {
     const c = currentChars[j];
     if (c !== ' ' && c !== '\t' && c !== '\r' && c !== '\n') return c;
   }
-  // Check subsequent tokens
   for (let t = tokenIdx + 1; t < tokens.length; t++) {
     const val = tokens[t].value;
     for (let j = 0; j < val.length; j++) {
@@ -383,22 +328,15 @@ function findNextNonWhitespace(currentChars: string, startJ: number, tokens: Tok
   return null;
 }
 
-/**
- * Extract the last word from the result string (for detecting 'for', 'if', etc.)
- */
 function lastTokenWord(result: string): string {
   const match = result.trimEnd().match(/([a-zA-Z_]\w*)$/);
   return match ? match[1] : '';
 }
 
-/**
- * Peek at the next word in the remaining tokens (for detecting 'else', 'catch', etc.)
- */
 function peekNextWord(currentChars: string, startJ: number, tokens: Token[], tokenIdx: number): string | null {
   let buf = '';
   let started = false;
 
-  // Check rest of current token's chars
   for (let j = startJ; j < currentChars.length; j++) {
     const c = currentChars[j];
     if (c === ' ' || c === '\t' || c === '\r' || c === '\n') {
@@ -413,7 +351,6 @@ function peekNextWord(currentChars: string, startJ: number, tokens: Token[], tok
     }
   }
 
-  // Check subsequent tokens
   for (let t = tokenIdx + 1; t < tokens.length; t++) {
     if (tokens[t].type !== 'code') return started ? buf : null;
     const val = tokens[t].value;
@@ -435,50 +372,30 @@ function peekNextWord(currentChars: string, startJ: number, tokens: Token[], tok
   return started ? buf : null;
 }
 
-
-/* ═══════════════════════════════════════════════════════════════
-   Service
-   ═══════════════════════════════════════════════════════════════ */
-
 @Injectable({ providedIn: 'root' })
 export class FormatterService {
   private cmService = inject(CodeMirrorService);
 
-  /**
-   * Check if formatting is supported for the given language.
-   * Returns true for Prettier-supported AND brace-style languages.
-   */
   isFormattingSupported(languageName: string): boolean {
     const key = languageName.toLowerCase();
     return key in PRETTIER_PARSER_MAP || BRACE_STYLE_LANGUAGES.has(key);
   }
 
-  /**
-   * Format the given code string.
-   * Uses Prettier for supported languages, falls back to brace-based formatter
-   * for C-style languages.
-   */
   async formatCode(code: string, languageName: string): Promise<string> {
     const key = languageName.toLowerCase();
 
-    // Try Prettier first
     const prettierConfig = PRETTIER_PARSER_MAP[key];
     if (prettierConfig) {
       return this.formatWithPrettier(code, prettierConfig);
     }
 
-    // Try brace-based formatter
     if (BRACE_STYLE_LANGUAGES.has(key)) {
       return formatBraceStyle(code, 2);
     }
 
-    // Unsupported — return original
     return code;
   }
 
-  /**
-   * Format using Prettier.
-   */
   private async formatWithPrettier(
     code: string,
     config: { parser: string; plugins: string[] },
@@ -486,18 +403,16 @@ export class FormatterService {
     try {
       const prettier = await loadPrettierCore();
 
-      // Load all required plugins
       const plugins: any[] = [];
       for (const pluginKey of config.plugins) {
         const p = await loadPrettierPlugin(pluginKey);
         if (p) plugins.push(p);
       }
-      // Always include estree if loaded (needed by babel/typescript)
       if (loadedPlugins['estree'] && !plugins.includes(loadedPlugins['estree'])) {
         plugins.push(loadedPlugins['estree']);
       }
 
-      const result = await prettier.format(code, {
+      return await prettier.format(code, {
         parser: config.parser,
         plugins,
         singleQuote: true,
@@ -505,10 +420,8 @@ export class FormatterService {
         trailingComma: 'all',
         printWidth: 80,
       });
-
-      return result;
     } catch (err) {
-      console.warn('[Formatter] Prettier formatting failed:', err);
+      console.warn('[Formatter] Prettier failed:', err);
       return code;
     }
   }

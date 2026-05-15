@@ -21,25 +21,15 @@ export class SettingsModalComponent {
 
   isOpen$ = this.modalService.settingsOpen$;
 
-  // Local copies for two-way binding
   syntaxLanguage = 'JavaScript';
   lineNumbers = true;
   wordWrap = false;
-
-  /** Full list of supported languages from CodeMirror */
   languages: string[] = [];
-
-  /** Whether the current language supports Prettier formatting */
   canFormat = false;
-
-  /** Formatting in progress flag */
   isFormatting = false;
-
-  /** Status message after formatting */
   formatStatus: string | null = null;
 
   constructor() {
-    // Build sorted language list from CM6's language-data
     this.languages = this.cmService.getLanguageNames();
 
     this.settingsService.settings$.subscribe(s => {
@@ -84,11 +74,7 @@ export class SettingsModalComponent {
     }
 
     this.isFormatting = false;
-
-    // Clear status after 3 seconds
-    setTimeout(() => {
-      this.formatStatus = null;
-    }, 3000);
+    setTimeout(() => { this.formatStatus = null; }, 3000);
   }
 
   save(): void {

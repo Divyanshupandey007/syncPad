@@ -12,6 +12,7 @@
       (keydown.enter)="onTitleEnter($event)"
       spellcheck="false"
       id="input-doc-title"
+      aria-label="Document title"
     />
 
     <div class="navbar__divider"></div>
@@ -62,6 +63,7 @@
         [value]="fontSize"
         (input)="onFontSizeChange($event)"
         id="range-font-size-topbar"
+        aria-label="Font size"
       />
       <span class="navbar__font-size-label navbar__font-size-label--large">A</span>
       <span class="navbar__font-size-value">{{ fontSize }}px</span>

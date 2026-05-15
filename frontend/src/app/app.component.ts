@@ -12,7 +12,6 @@ import { ModalService } from './services/modal.service';
   imports: [
     RouterOutlet,
     NavbarComponent,
-
     HelpModalComponent,
     SettingsModalComponent,
   ],
@@ -26,13 +25,11 @@ export class AppComponent {
   handleKeyboardShortcuts(event: KeyboardEvent): void {
     const mod = event.metaKey || event.ctrlKey;
 
-    // Cmd/Ctrl + P → Open Settings
     if (mod && event.key === 'p') {
       event.preventDefault();
       this.modalService.openSettings();
     }
 
-    // Cmd/Ctrl + Shift + C → Copy Link
     if (mod && event.shiftKey && event.key === 'C') {
       event.preventDefault();
       navigator.clipboard.writeText(window.location.href);

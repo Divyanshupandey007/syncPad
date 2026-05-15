@@ -1,28 +1,21 @@
-# ── Environment variables (NEVER commit secrets) ──
 .env
 **/.env
 
-# ── IDE ──
 .vscode/
 .idea/
 
-# ── Go binaries ──
 *.exe
 *.exe~
 *.dll
 *.so
 *.dylib
 
-# ── Node.js ──
 node_modules/
 
-# ── Angular build output ──
 dist/
 .angular/
 
-# ── OS junk ──
 .DS_Store
 Thumbs.db
 
-# ── Database dumps ──
 *.sql
